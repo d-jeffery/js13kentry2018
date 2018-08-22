@@ -138,6 +138,20 @@ class User {
 		this.socket.emit("end");
 	}
 
+    /**
+     * Emit wait event.
+     */
+    wait() {
+        this.socket.emit("wait");
+    }
+
+    /**
+	 * Emit turn event.
+     */
+	turn() {
+        this.socket.emit("turn");
+    }
+
 	/**
 	 * Trigger win event
 	 */
@@ -172,6 +186,10 @@ module.exports = {
 		users.push(user);
 		findOpponent(user);
 
+		if (user.opponent) {
+		    user.opponent.wait()
+        }
+
 		socket.on("disconnect", () => {
 			console.log("Disconnected: " + socket.id);
 			removeUser(user);
@@ -181,7 +199,12 @@ module.exports = {
 			}
 		});
 
-		socket.on("guess", (guess) => {
+		socket.on("move", (move) => {
+            console.log("Move: " + socket.id);
+            user.opponent.turn();
+		});
+
+		/*socket.on("guess", (guess) => {
 			console.log("Guess: " + socket.id);
 			if (user.setGuess(guess) && user.game.ended()) {
 				user.game.score();
@@ -190,7 +213,7 @@ module.exports = {
 					storage.set('games', games + 1);
 				});
 			}
-		});
+		});*/
 
 		console.log("Connected: " + socket.id);
 	},

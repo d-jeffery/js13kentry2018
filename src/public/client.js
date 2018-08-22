@@ -61,6 +61,14 @@
             setMessage("Round " + (points.win + points.lose + points.draw + 1));
         });
 
+        socket.on("turn", () => {
+            enableButtons();
+        });
+
+        socket.on("wait", () => {
+            disableButtons();
+        });
+
         socket.on("win", () => {
             points.win++;
             displayScore("You win!");
@@ -100,7 +108,7 @@
             ((button, guess) => {
                 button.addEventListener("click", function (e) {
                     disableButtons();
-                    socket.emit("guess", guess);
+                    socket.emit("move", guess);
                 }, false);
             })(buttons[i], i + 1);
         }

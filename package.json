@@ -22,19 +22,20 @@
     "body-parser": "^1.18.3",
     "express": "^4.16.0",
     "express-session": "^1.15.6",
-    "gulp": "^3.9.1",
-    "gulp-butternut": "^1.0.0",
-    "gulp-htmlmin": "^4.0.0",
     "mysql2": "^1.5.3",
     "pg": "^7.4.3",
     "pg-hstore": "^2.3.2",
     "prettier": "^1.14.2",
-    "pump": "^3.0.0",
     "sequelize": "^4.38.0",
     "socket.io": "^2.1.0",
     "sqlite3": "^4.0.1"
   },
   "devDependencies": {
-    "mocha": "^5.2.0"
+    "gulp": "^3.9.1",
+    "gulp-butternut": "^1.0.0",
+    "gulp-htmlmin": "^4.0.0",
+    "husky": "^0.14.3",
+    "mocha": "^5.2.0",
+    "pump": "^3.0.0"
   }
 }
