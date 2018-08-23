@@ -10,7 +10,8 @@
             draw: 0,
             win: 0,
             lose: 0
-        };
+        },
+        gameboard; // The game board
 
     /**
      * Disable all button
@@ -56,17 +57,23 @@
      */
     function bind() {
 
-        socket.on("start", () => {
+        socket.on("start", (b) => {
+            gameboard = b;
+            console.log(gameboard);
             enableButtons();
-            setMessage("Round " + (points.win + points.lose + points.draw + 1));
+            setMessage("Game Start!");
         });
 
-        socket.on("turn", () => {
+        socket.on("turn", (b) => {
+            console.log("turn", b);
             enableButtons();
+            setMessage("Your turn!");
         });
 
-        socket.on("wait", () => {
+        socket.on("wait", (b) => {
+            console.log("wait", b);
             disableButtons();
+            setMessage("Opponents turn!");
         });
 
         socket.on("win", () => {
@@ -122,6 +129,7 @@
         buttons = document.getElementsByTagName("button");
         message = document.getElementById("message");
         score = document.getElementById("score");
+        gameboard = undefined;
         disableButtons();
         bind();
     }

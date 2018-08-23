@@ -41,6 +41,7 @@ class Game {
 	constructor(user1, user2) {
 		this.user1 = user1;
 		this.user2 = user2;
+		this.gameboard = new GameBoard(5, 5);
 	}
 
 	/**
@@ -56,14 +57,13 @@ class Game {
 	 * @return {boolean}
 	 */
 	ended() {
-		return this.user1.guess !== GUESS_NO && this.user2.guess !== GUESS_NO;
 	}
 
 	/**
 	 * Final score
 	 */
 	score() {
-		if (
+    /*if (
 			this.user1.guess === GUESS_ROCK && this.user2.guess === GUESS_SCISSORS ||
 			this.user1.guess === GUESS_PAPER && this.user2.guess === GUESS_ROCK ||
 			this.user1.guess === GUESS_SCISSORS && this.user2.guess === GUESS_PAPER
@@ -80,7 +80,7 @@ class Game {
 		} else {
 			this.user1.draw();
 			this.user2.draw();
-		}
+		}*/
 	}
 
 }
@@ -97,23 +97,6 @@ class User {
 		this.socket = socket;
 		this.game = null;
 		this.opponent = null;
-		this.guess = GUESS_NO;
-	}
-
-	/**
-	 * Set guess value
-	 * @param {number} guess
-	 */
-	setGuess(guess) {
-		if (
-			!this.opponent ||
-			guess <= GUESS_NO ||
-			guess > GUESS_SCISSORS
-		) {
-			return false;
-		}
-		this.guess = guess;
-		return true;
 	}
 
 	/**
@@ -124,8 +107,7 @@ class User {
 	start(game, opponent) {
 		this.game = game;
 		this.opponent = opponent;
-		this.guess = GUESS_NO;
-		this.socket.emit("start");
+		this.socket.emit("start", this.game.gameboard);
 	}
 
 	/**
@@ -134,7 +116,6 @@ class User {
 	end() {
 		this.game = null;
 		this.opponent = null;
-		this.guess = GUESS_NO;
 		this.socket.emit("end");
 	}
 
@@ -142,14 +123,14 @@ class User {
      * Emit wait event.
      */
     wait() {
-        this.socket.emit("wait");
+        this.socket.emit("wait", this.game.gameboard);
     }
 
     /**
 	 * Emit turn event.
      */
 	turn() {
-        this.socket.emit("turn");
+        this.socket.emit("turn", this.game.gameboard);
     }
 
 	/**
@@ -202,6 +183,7 @@ module.exports = {
 		socket.on("move", (move) => {
             console.log("Move: " + socket.id);
             user.opponent.turn();
+            user.wait();
 		});
 
 		/*socket.on("guess", (guess) => {

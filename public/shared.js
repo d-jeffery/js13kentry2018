@@ -1,1 +1,1 @@
-"use strict";let GUESS_NO=0,GUESS_ROCK=1,GUESS_PAPER=2,GUESS_SCISSORS=3
+"use strict";let GUESS_NO=0,GUESS_ROCK=1,GUESS_PAPER=2,GUESS_SCISSORS=3;class GameBoard{constructor(r,t){this.r=r;this.c=t;this.tiles=[];this.createBoard()}createBoard(){for(let r=0;r<this.r;r++){this.tiles[r]=[];for(let t=0;t<this.c;t++)this.tiles[r][t]=new BoardTile(t,r)}}getBoardTile(r,t){return this.tiles[t][r]}}class BoardTile{constructor(r,t){this.x=r;this.y=t;this.owner=void 0}setOwner(r){this.owner=r}}
