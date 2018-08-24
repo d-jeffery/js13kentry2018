@@ -1,9 +1,16 @@
 "use strict";
 
-const GUESS_NO = 0;
-const GUESS_ROCK = 1;
-const GUESS_PAPER = 2;
-const GUESS_SCISSORS = 3;
+/**
+ * Direction enums.
+ */
+const N = 0;
+const NE = 1;
+const E = 2;
+const SE = 3;
+const S = 4;
+const SW = 5;
+const W = 6;
+const NW = 7;
 
 /**
  * The game board.

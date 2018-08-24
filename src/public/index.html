@@ -7,14 +7,17 @@
 <body>
 
 <div style="text-align:center">
-    <h1 id="message"></h1>
     <div>
-        <button>Turn</button>
+        <h1 id="message"></h1>
+        <canvas id="game"></canvas>
+        <div>
+            <button>Turn</button>
+        </div>
+        <div id="score"></div>
+        <p>
+            <a href="/stat">Statistics</a>
+        </p>
     </div>
-    <div id="score"></div>
-    <p>
-        <a href="/stat">Statistics</a>
-    </p>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>

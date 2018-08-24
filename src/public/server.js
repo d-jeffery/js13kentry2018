@@ -63,24 +63,7 @@ class Game {
 	 * Final score
 	 */
 	score() {
-    /*if (
-			this.user1.guess === GUESS_ROCK && this.user2.guess === GUESS_SCISSORS ||
-			this.user1.guess === GUESS_PAPER && this.user2.guess === GUESS_ROCK ||
-			this.user1.guess === GUESS_SCISSORS && this.user2.guess === GUESS_PAPER
-		) {
-			this.user1.win();
-			this.user2.lose();
-		} else if (
-			this.user2.guess === GUESS_ROCK && this.user1.guess === GUESS_SCISSORS ||
-			this.user2.guess === GUESS_PAPER && this.user1.guess === GUESS_ROCK ||
-			this.user2.guess === GUESS_SCISSORS && this.user1.guess === GUESS_PAPER
-		) {
-			this.user2.win();
-			this.user1.lose();
-		} else {
-			this.user1.draw();
-			this.user2.draw();
-		}*/
+
 	}
 
 }

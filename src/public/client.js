@@ -11,7 +11,9 @@
             win: 0,
             lose: 0
         },
-        gameboard; // The game board
+        canvas, // The game canvas
+        gameboard, // The game board
+        engine;
 
     /**
      * Disable all button
@@ -129,11 +131,327 @@
         buttons = document.getElementsByTagName("button");
         message = document.getElementById("message");
         score = document.getElementById("score");
+        canvas = document.getElementById("game");
+        engine = setupEngine(640, 480, canvas);
         gameboard = undefined;
         disableButtons();
         bind();
     }
 
     window.addEventListener("load", init, false);
+
+    /**
+     * Setup the game engine.
+     * @param width
+     * @param height
+     * @param canvas
+     * @returns {Engine}
+     */
+    function setupEngine(width, height, canvas) {
+        const engine = new Engine(width, height, canvas);
+
+        const preloader = new PreloaderStage(width, height);
+        engine.setStage(preloader);
+
+        engine.setStageTransition(() => {
+            if (engine.stage instanceof PreloaderStage) {
+                const stage = new Stage(width, height);
+                engine.setStage(stage);
+            }
+        });
+
+        return engine;
+    }
+
+
+
+    /**
+     * Image Loader singleton.
+     * Singleton pattern;  http://www.adam-bien.com/roller/abien/entry/singleton_pattern_in_es6_and
+     */
+    class ImageLoader {
+        /**
+         * Constructor.
+         * @returns {ImageLoader} instance if already initialized
+         */
+        constructor() {
+            if (ImageLoader.instance) {
+                return ImageLoader.instance;
+            }
+
+            this.numOfImages = 0;
+            this.numComplete = 0;
+            this.images = {};
+            ImageLoader.instance = this;
+        }
+
+        /**
+         * Load an img and assign it to a given key.
+         * @param {string} key the key for the img
+         * @param {string} src the src for the img
+         */
+        loadImage(key, src) {
+            this.numOfImages++;
+            const downloadingImage = new Image();
+            downloadingImage.onload = () => {
+                ImageLoader.instance.images[key] = downloadingImage;
+                ImageLoader.instance.numComplete++;
+            };
+            downloadingImage.src = src;
+        }
+
+        /**
+         * Get the img associated with the given key.
+         * @param {string} key - the key for the img
+         * @returns {Image}
+         */
+        getImage(key) {
+            const image = this.images[key];
+            if (image instanceof Image) {
+                return image;
+            }
+            throw new Error(key + ' is not a valid key');
+        }
+
+        /**
+         * Get percentage of assets loaded.
+         * @returns {number} percentage of load loading completed
+         */
+        getProgress() {
+            return this.numComplete / this.numOfImages;
+        }
+
+        /**
+         * Check whether loading is complete.
+         * @returns {boolean} true if loading is done.
+         */
+        loadingIsCompleted() {
+            if (this.numOfImages === 0) {
+                return true;
+            }
+            return this.getProgress() === 1;
+        }
+    }
+
+    /**
+     * The game engine.
+     */
+    class Engine {
+
+        /**
+         * Engine constructor.
+         * @param {number} width
+         * @param {number} height
+         * @param {HTMLCanvasElement} canvas
+         */
+        constructor(width, height, canvas) {
+            this.w = width;
+            this.h = height;
+
+            this.canvas = canvas;
+            this.canvas.width = this.w;
+            this.canvas.height = this.h;
+
+            this.ctx = this.canvas.getContext('2d');
+            this.stage = undefined;
+        }
+
+        /**
+         * Set the current stage.
+         * @param {Stage} stage
+         */
+        setStage(stage) {
+            this.stage = stage;
+            this.stage.ctx = this.ctx;
+            this.stage.init();
+        }
+
+        /**
+         * Set a stage transition function.
+         * @param {() => void} fun
+         */
+        setStageTransition(fun) {
+            this.transitionFun = fun;
+        }
+
+        /**
+         * Start the game engine.
+         */
+        start() {
+            this.running = true;
+
+            const engine = this;
+            function tick() {
+                const timeNow = Date.now();
+                const dt = timeNow - engine.currentTime;
+                engine.currentTime = timeNow;
+
+                if (engine.running) {
+                    engine.update(dt / 1000);
+                }
+                engine.render();
+
+                window.requestAnimationFrame(tick);
+            }
+            window.requestAnimationFrame(tick);
+        }
+
+        /**
+         * Stop the game engine.
+         */
+        stop() {
+            this.running = false;
+        }
+
+        /**
+         * Update function.
+         * @param {number} dt
+         */
+        update(dt) {
+            // Run transition function if currentStage is marked as 'finished'
+            if (this.stage.finished && this.transitionFun !== undefined) {
+                this.transitionFun();
+            }
+
+            // Update stage
+            if (this.stage !== undefined) {
+                this.stage.update(dt);
+            }
+        }
+
+        /**
+         * Render function.
+         */
+        render() {
+            // Clear reset canvas
+            this.ctx.save();
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.restore();
+
+            // Render stage
+            if (this.stage !== undefined) {
+                this.stage.render();
+            }
+        }
+    }
+
+    /**
+     * The game stage.
+     */
+    class Stage {
+
+        /**
+         * Stage constructor.
+         * @param {number} width
+         * @param {number} height
+         */
+        constructor(width, height) {
+            this.w = width;
+            this.h = height;
+            this.ctx = undefined;
+            this.finished = false;
+            this.actors = [];
+        }
+
+        /**
+         * Add an actor to the stage and initialise.
+         * @param {Actor} actor
+         */
+        addActor(actor) {
+            actor.stage = this;
+            actor.init();
+            this.actors.push(actor);
+        }
+
+        /**
+         * Initialize the stage.
+         */
+        init() {
+            this.finished = false;
+        }
+
+        /**
+         * Update all actors on stage.
+         * @param {number} dt
+         */
+        update(dt) {
+            this.actors = this.actors.filter(a => !a.remove);
+            this.sortActorsByLayer();
+
+            for (const actor of this.actors) {
+                actor.update(dt);
+            }
+        }
+
+        /**
+         * Render all actors on stage.
+         */
+        render() {
+            for (const actor of this.actors) {
+                actor.render();
+            }
+        }
+
+        /**
+         * Sort actor list by layer.
+         */
+        sortActorsByLayer() {
+            this.actors.sort((a, b) => {
+                return a.layer - b.layer;
+            });
+        }
+    }
+
+    /**
+     * Stage for rendering ImageLoader progress.
+     */
+    class PreloaderStage extends Stage {
+
+        /**
+         * Basic constructor taking currentStage w and h.
+         * @param {number} width - The currentStage w.
+         * @param {number} height - The currentStage h.
+         */
+        constructor(width, height) {
+            super(width, height);
+            this.assetLoader = new ImageLoader();
+            this.progress = this.assetLoader.getProgress();
+        }
+
+        /**
+         * Overriding update function.
+         * @param {number} step - The number of steps to update for.
+         */
+        update(step) {
+            super.update(step);
+            this.progress = this.assetLoader.getProgress();
+            if (this.assetLoader.loadingIsCompleted()) {
+                this.finished = true;
+            }
+        }
+
+        /**
+         * Overriding drawMazeParts function.
+         */
+        render() {
+            super.render();
+            this.ctx.save();
+            this.drawProgress();
+            this.ctx.restore();
+        }
+
+        /**
+         * Draw progress as a bar.
+         */
+        drawProgress() {
+            const minX = 20;
+            const maxX = this.w - minX * 2;
+            const barHeight = 50;
+            const fill = maxX * this.progress;
+
+            this.ctx.strokeRect(minX, this.h / 2 - barHeight / 2, maxX, barHeight);
+            this.ctx.fillRect(minX, this.h / 2 - barHeight / 2, fill, barHeight);
+        }
+    }
 
 })();
