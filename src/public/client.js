@@ -132,7 +132,8 @@
         message = document.getElementById("message");
         score = document.getElementById("score");
         canvas = document.getElementById("game");
-        engine = setupEngine(640, 480, canvas);
+        engine = setupEngine(640, 320, canvas);
+        engine.start();
         gameboard = undefined;
         disableButtons();
         bind();
@@ -156,6 +157,8 @@
         engine.setStageTransition(() => {
             if (engine.stage instanceof PreloaderStage) {
                 const stage = new Stage(width, height);
+                const actor = new CircleActor(new Point(30, 30), 30, {});
+                stage.addActor(actor);
                 engine.setStage(stage);
             }
         });
@@ -164,6 +167,15 @@
     }
 
 
+    /**
+     * A point.
+     */
+    class Point {
+        constructor(x, y) {
+            this.x = x;
+            this.y = y;
+        }
+    }
 
     /**
      * Image Loader singleton.
@@ -454,4 +466,75 @@
         }
     }
 
+    /**
+     * An actor class.
+     */
+    class Actor {
+
+        /**
+         * Actor constructor.
+         * @param {Point} origin
+         * @param {object} options - layer, stage, debugcolour
+         */
+        constructor(origin, options) {
+            this.pos = origin;
+            this.layer = options.layer ? options.layer : 0;
+            this.stage = options.stage ? options.stage : undefined;
+            this.debugColour = options.debugColour ? options.debugColour : '#000000';
+            this.remove = false;
+        }
+
+        /**
+         * Initialize the actor.
+         */
+        init() {
+        }
+
+        /**
+         * Update the actor.
+         * @param {number} dt
+         */
+        update(dt) {
+        }
+
+        /**
+         * Render the actor.
+         */
+        render() {
+            this.debugDraw();
+        }
+
+        /**
+         * Draw the debug version of the actor.
+         */
+        debugDraw() {
+        }
+    }
+
+    /**
+     * A circle shaped actor.
+     */
+    class CircleActor extends Actor {
+        /**
+         * Constructor.
+         * @param {Point} origin
+         * @param {number} radius
+         * @param {object} options - layer, stage, debugcolour
+         */
+        constructor(origin, radius, options) {
+            super(origin, options);
+            this.r = radius;
+        }
+
+        /**
+         * @inheritDoc
+         */
+        debugDraw() {
+            const ctx = this.stage.ctx;
+            ctx.beginPath();
+            ctx.fillStyle = this.debugColour;
+            ctx.arc(this.pos.x, this.pos.y, this.r, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+    }
 })();
