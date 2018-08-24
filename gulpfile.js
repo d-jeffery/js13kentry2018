@@ -10,3 +10,7 @@ gulp.task('compress', function(cb) {
         cb
     );
 });
+
+gulp.task('copy', function(cb) {
+    pump([gulp.src('src/public/*'), gulp.dest('public')]);
+});
