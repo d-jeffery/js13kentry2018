@@ -64,6 +64,7 @@
             console.log(gameboard);
             enableButtons();
             setMessage("Game Start!");
+            engine.start();
         });
 
         socket.on("turn", (b) => {
@@ -133,7 +134,6 @@
         score = document.getElementById("score");
         canvas = document.getElementById("game");
         engine = setupEngine(640, 320, canvas);
-        engine.start();
         gameboard = undefined;
         disableButtons();
         bind();
@@ -156,16 +156,13 @@
 
         engine.setStageTransition(() => {
             if (engine.stage instanceof PreloaderStage) {
-                const stage = new Stage(width, height);
-                const actor = new CircleActor(new Point(30, 30), 30, {});
-                stage.addActor(actor);
+                const stage = new GameBoardStage(width, height);
                 engine.setStage(stage);
             }
         });
 
         return engine;
     }
-
 
     /**
      * A point.
@@ -537,4 +534,48 @@
             ctx.fill();
         }
     }
+
+
+    /**
+     * The stage with the gameboard.
+     */
+    class GameBoardStage extends Stage {
+        /**
+         * Constructor.
+         * @param {number} w
+         * @param {number} h
+         */
+        constructor(w, h) {
+            super(w, h);
+        }
+
+        /**
+         * @inheritDoc
+         */
+        init() {
+            super.init();
+
+            for(let i = 0; i < gameboard.r; i++) {
+                for(let j = 0; j < gameboard.c; j++) {
+                    const tile = gameboard.tiles[i][j];
+                    const point = new Point(tile.x * 50 + 20, tile.y * 50 + 20);
+                    this.addActor(new CircleActor(point, 20, {}));
+                }
+            }
+        }
+
+        /**
+         * @inheritDoc
+         */
+        update(dt) {
+            super.update(dt)
+        }
+
+        render() {
+            super.render()
+        }
+
+    }
+
+
 })();
