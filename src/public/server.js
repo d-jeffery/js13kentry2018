@@ -41,7 +41,11 @@ class Game {
 	constructor(user1, user2) {
 		this.user1 = user1;
 		this.user2 = user2;
-		this.gameboard = new GameBoard(5, 5);
+
+		this.user1.playerNo = PLAYER_1;
+		this.user2.playerNo = PLAYER_2;
+		//this.gameboard = new HexGameBoard(5);
+        this.gameboard = new RectGameBoard(10, 6, true);
 	}
 
 	/**
@@ -78,6 +82,7 @@ class User {
 	 */
 	constructor(socket) {
 		this.socket = socket;
+		this.playerNo = null;
 		this.game = null;
 		this.opponent = null;
 	}
@@ -90,7 +95,7 @@ class User {
 	start(game, opponent) {
 		this.game = game;
 		this.opponent = opponent;
-		this.socket.emit("start", this.game.gameboard);
+		this.socket.emit("start", this.game.gameboard, this.playerNo);
 	}
 
 	/**

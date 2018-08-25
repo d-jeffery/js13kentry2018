@@ -1,24 +1,78 @@
 "use strict";
 
+
+/**
+ * Player enum
+ */
+const PLAYER_1 = 0;
+const PLAYER_2 = 1;
+
 /**
  * Direction enums.
  */
-const N = 0;
-const NE = 1;
-const E = 2;
-const SE = 3;
-const S = 4;
-const SW = 5;
-const W = 6;
-const NW = 7;
+const E = 0;
+const SE = 1;
+const S = 2;
+const SW = 3;
+const W = 4;
+const NW = 5;
+const N = 6;
+const NE = 7;
+
 
 /**
- * The game board.
+ * TODO hexagonal board
  */
-class GameBoard {
-    constructor(rows, cols) {
+class HexGameBoard {
+    /**
+     * Constructor.
+     * @param {number} d
+     */
+    constructor(d) {
+        this.d = d;
+
+        this.tiles = [];
+        this.createBoard();
+
+    }
+
+    /**
+     * Create the board.
+     */
+    createBoard() {
+        for(let i = 0; i < this.d; i++) {
+            this.tiles[i] = [];
+            for(let j = 0; j < this.d; j++) {
+                this.tiles[i][j] = new BoardTile(j, i);
+            }
+        }
+    }
+
+    /**
+     * Get board tile.
+     * @param {number} x
+     * @param {number} y
+     * @returns {BoardTile}
+     */
+    getBoardTile(x, y) {
+        return this.tiles[y][x];
+    }
+}
+
+/**
+ * The rect game board.
+ */
+class RectGameBoard {
+    /**
+     * Constructor.
+     * @param {number} cols
+     * @param {number} rows
+     * @param {boolean} cut - trim the corners
+     */
+    constructor(cols, rows, cut) {
         this.r = rows;
         this.c = cols;
+        this.cut = cut;
 
         this.tiles = [];
         this.createBoard();
@@ -34,6 +88,10 @@ class GameBoard {
             for(let j = 0; j < this.c; j++) {
                 this.tiles[i][j] = new BoardTile(j, i);
             }
+        }
+        if (this.cut) {
+            this.tiles[0][0] = null;
+            this.tiles[this.r - 1][this.c - 1] = null;
         }
     }
 

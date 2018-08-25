@@ -13,6 +13,7 @@
         },
         canvas, // The game canvas
         gameboard, // The game board
+        playerNo,
         engine;
 
     /**
@@ -59,9 +60,10 @@
      */
     function bind() {
 
-        socket.on("start", (b) => {
+        socket.on("start", (b, n) => {
             gameboard = b;
-            console.log(gameboard);
+            playerNo = n;
+            console.log(gameboard, playerNo);
             enableButtons();
             setMessage("Game Start!");
             engine.start();
@@ -557,9 +559,14 @@
 
             for(let i = 0; i < gameboard.r; i++) {
                 for(let j = 0; j < gameboard.c; j++) {
+                    if (gameboard.tiles[i][j] === null) {
+                        continue;
+                    }
+
                     const tile = gameboard.tiles[i][j];
-                    const point = new Point(tile.x * 50 + 20, tile.y * 50 + 20);
-                    this.addActor(new CircleActor(point, 20, {}));
+                    const x = tile.x * 50 + 30 + 20 * (i % 2);
+                    const y = tile.y * 50 + 30;
+                    this.addActor(new CircleActor(new Point(x, y), 20, {}));
                 }
             }
         }
@@ -569,6 +576,7 @@
          */
         update(dt) {
             super.update(dt)
+
         }
 
         render() {
