@@ -177,6 +177,30 @@
     }
 
     /**
+     * Calculate distance between two points.
+     * @param {Point} pointA
+     * @param {Point} pointB
+     * @returns {number}
+     */
+    function dist(pointA, pointB) {
+        return Math.sqrt(Math.pow(pointB.x - pointA.x, 2) + Math.pow(pointB.y - pointA.y, 2));
+    }
+
+    /**
+     * Get the position of the mouse relative to the canvas.
+     * @param {HTMLCanvasElement} canvas
+     * @param {MouseEvent} mouseEvent
+     * @returns {Point}
+     */
+    function getMousePos(canvas, mouseEvent) {
+        const rect = canvas.getBoundingClientRect();
+        return new Point(
+            mouseEvent.clientX - rect.left,
+            mouseEvent.clientY - rect.top
+        );
+    }
+
+    /**
      * Image Loader singleton.
      * Singleton pattern;  http://www.adam-bien.com/roller/abien/entry/singleton_pattern_in_es6_and
      */
@@ -537,7 +561,6 @@
         }
     }
 
-
     /**
      * The stage with the gameboard.
      */
@@ -557,6 +580,7 @@
         init() {
             super.init();
 
+            // Setup gameboard
             for(let i = 0; i < gameboard.r; i++) {
                 for(let j = 0; j < gameboard.c; j++) {
                     if (gameboard.tiles[i][j] === null) {
@@ -566,9 +590,22 @@
                     const tile = gameboard.tiles[i][j];
                     const x = tile.x * 50 + 30 + 20 * (i % 2);
                     const y = tile.y * 50 + 30;
-                    this.addActor(new CircleActor(new Point(x, y), 20, {}));
+                    this.addActor(new GameTile(new Point(x, y), tile));
                 }
             }
+
+            // Setup event listener
+            canvas.addEventListener("mousedown", (e) => {
+                const pos = getMousePos(canvas, e);
+
+                const selected = this.actors
+                    .filter( a => a instanceof GameTile)
+                    .filter( a => a.doesIntersect(pos));
+
+                if (selected[0] !== undefined) {
+                    console.log(selected[0]);
+                }
+            })
         }
 
         /**
@@ -579,11 +616,31 @@
 
         }
 
+        /**
+         * @inheritDoc
+         */
         render() {
             super.render()
         }
-
     }
 
+    /**
+     * Game tile.
+     */
+    class GameTile extends CircleActor {
+        constructor(origin, tile) {
+            super(origin, 20, {layer: tile.y});
+            this.tile = tile;
+        }
+
+        /**
+         * Does point intersect with underlying circle.
+         * @param {Point} point
+         * @returns {boolean}
+         */
+        doesIntersect(point) {
+            return dist(point, this.pos) < this.r;
+        }
+    }
 
 })();
