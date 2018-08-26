@@ -132,6 +132,21 @@ class RectGameBoard {
     }
 
     /**
+     * Is the board filled.
+     * @return {boolean}
+     */
+    isBoardFilled() {
+        for(let i = 0; i < this.r; i++) {
+            for(let j = 0; j < this.c; j++) {
+                if (this.tiles[i][j] !== null && this.tiles[i][j].owner === undefined) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
      * Get board tile.
      * @param {number} row
      * @param {number} col

@@ -63,6 +63,7 @@ class Game {
 	 * @return {boolean}
 	 */
 	ended() {
+	    return this.gameboard.isBoardFilled()
 	}
 
 	/**
@@ -178,6 +179,11 @@ module.exports = {
                     user.opponent.turn();
                     user.wait();
                     user.game.turn = (user.game.turn + 1) % NUM_PLAYERS;
+                }
+
+                if (user.game.ended()) {
+                    user.game.score();
+                    console.log("End")
                 }
             }
 		});
