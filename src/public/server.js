@@ -47,7 +47,7 @@ class Game {
 
 		this.turn = PLAYER_1;
 		//this.gameboard = new HexGameBoard(5);
-        this.gameboard = new RectGameBoard(10, 6, true);
+        this.gameboard = new RectGameBoard(8, 6, false);
 	}
 
 	/**
@@ -183,7 +183,6 @@ module.exports = {
 
                 if (user.game.ended()) {
                     user.game.score();
-                    console.log("End")
                 }
             }
 		});

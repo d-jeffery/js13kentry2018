@@ -100,10 +100,48 @@ class RectGameBoard {
      */
     doMove(row, col, player) {
         if (this.getValidMoves(player).includes(this.tiles[row][col])) {
-            this.tiles[row][col].setOwner(player);
+            this.claim(row, col, player);
             return true;
         }
         return false;
+    }
+
+    /**
+     * Claim piece.
+     * @param {number} row
+     * @param {number} col
+     * @param {number} player
+     */
+    claim(row, col, player) {
+        const tile = this.tiles[row][col];
+        const otherPlayer = (player + 1) % NUM_PLAYERS;
+        for(let i = 0; i < 6; i++) {
+            let stack = [];
+            let nextTile = tile;
+            do {
+                let b = nextTile.getDirection(i);
+
+                if (this.tiles[b.r] !== undefined &&
+                    this.tiles[b.r][b.c]
+                ) {
+                    if (this.tiles[b.r][b.c].owner === undefined) {
+                        stack = [];
+                        break;
+                    } else if (this.tiles[b.r][b.c].owner === player) {
+                        break;
+                    } else {
+                        nextTile = this.tiles[b.r][b.c];
+                        stack.push(nextTile);
+                    }
+                } else {
+                    stack =[];
+                    break;
+                }
+            } while (true);
+            stack.forEach(t => t.setOwner(player))
+        }
+
+        tile.setOwner(player);
     }
 
     /**
