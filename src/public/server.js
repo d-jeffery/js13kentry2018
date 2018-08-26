@@ -44,6 +44,8 @@ class Game {
 
 		this.user1.playerNo = PLAYER_1;
 		this.user2.playerNo = PLAYER_2;
+
+		this.turn = PLAYER_1;
 		//this.gameboard = new HexGameBoard(5);
         this.gameboard = new RectGameBoard(10, 6, true);
 	}
@@ -170,12 +172,14 @@ module.exports = {
 
 		socket.on("move", (move) => {
             console.log("Move: " + socket.id);
+            if (user.game.turn === user.playerNo) {
+                // Execute move
+                user.game.gameboard.doMove(move.r, move.c, user.playerNo);
 
-            // Execute move
-            user.game.gameboard.doMove(move.r, move.c, user.playerNo);
-
-            user.opponent.turn();
-            user.wait();
+                user.opponent.turn();
+                user.wait();
+                user.game.turn = (user.game.turn + 1) % 2;
+            }
 		});
 
 		/*socket.on("guess", (guess) => {
