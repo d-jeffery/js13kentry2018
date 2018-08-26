@@ -172,7 +172,6 @@ module.exports = {
 
 		socket.on("move", (move) => {
             console.log("Move: " + socket.id);
-            console.log(user.game.gameboard.getValidMoves(user.game.turn));
             if (user.game.turn === user.playerNo) {
                 // Execute move
                 if (user.game.gameboard.doMove(move.r, move.c, user.playerNo)) {

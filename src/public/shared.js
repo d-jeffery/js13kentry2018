@@ -167,19 +167,32 @@ class BoardTile {
     getDirection(d) {
         const r = this.r;
         const c = this.c;
+        const offset = !(this.r % 2);
         switch (d) {
             case 0:
                 return {r: r + 0, c: c + 1};
             case 1:
-                return {r: r + 1, c: c + 1};
+                if (offset)
+                    return {r: r + 1, c: c + 0};
+                else
+                    return {r: r + 1, c: c + 1};
             case 2:
-                return {r: r + 1, c: c + 0};
+                if (offset)
+                    return {r: r + 1, c: c - 1};
+                else
+                    return {r: r + 1, c: c + 0};
             case 3:
                 return {r: r + 0, c: c - 1};
             case 4:
-                return {r: r - 1, c: c + 0};
+                if (offset)
+                    return {r: r - 1, c: c - 1};
+                else
+                    return {r: r - 1, c: c + 0};
             case 5:
-                return {r: r - 1, c: c + 1};
+                if (offset)
+                    return {r: r - 1, c: c + 0};
+                else
+                    return {r: r - 1, c: c + 1};
             default:
                 return undefined;
         }
@@ -194,7 +207,6 @@ class BoardTile {
         for(let i = 0; i < 6; i++) {
             a.push(this.getDirection(i));
         }
-
         return a;
     }
 }
