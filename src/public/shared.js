@@ -6,19 +6,7 @@
  */
 const PLAYER_1 = 0;
 const PLAYER_2 = 1;
-
-/**
- * Direction enums.
- */
-const E = 0;
-const SE = 1;
-const S = 2;
-const SW = 3;
-const W = 4;
-const NW = 5;
-const N = 6;
-const NE = 7;
-
+const NUM_PLAYERS = 2;
 
 /**
  * TODO hexagonal board
@@ -94,6 +82,14 @@ class RectGameBoard {
             this.tiles[0][0] = null;
             this.tiles[this.r - 1][this.c - 1] = null;
         }
+
+        const halfR = Math.floor(this.r / 2) - 1;
+        const halfC = Math.floor(this.c / 2) - 1;
+
+        this.tiles[halfR][halfC].owner = PLAYER_1;
+        this.tiles[halfR][halfC + 1].owner = PLAYER_2;
+        this.tiles[halfR + 1][halfC].owner = PLAYER_2;
+        this.tiles[halfR + 1][halfC + 1].owner = PLAYER_1;
     }
 
     /**
@@ -103,7 +99,36 @@ class RectGameBoard {
      * @param {number} player
      */
     doMove(row, col, player) {
-        this.tiles[row][col].setOwner(player);
+        if (this.getValidMoves(player).includes(this.tiles[row][col])) {
+            this.tiles[row][col].setOwner(player);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Return array of valid moves.
+     * @param player
+     */
+    getValidMoves(player) {
+        let claimable = [];
+
+        for(let i = 0; i < this.r; i++) {
+            for(let j = 0; j < this.c; j++) {
+                const tile = this.tiles[i][j];
+
+                if (tile !== null && tile.owner === (player + 1) % NUM_PLAYERS ) {
+                    claimable = claimable.concat(
+                        tile.getSiblings()
+                            .filter(b => this.tiles[b.r] !== undefined)
+                            .map(b => this.tiles[b.r][b.c])
+                            .filter(b => b)
+                            .filter(b => b.owner === undefined)
+                    );
+                }
+            }
+        }
+        return claimable;
     }
 
     /**
@@ -129,9 +154,47 @@ class BoardTile {
 
     /**
      * Set the owner.
-     * @param p
+     * @param {number} p
      */
     setOwner(p) {
         this.owner = p;
+    }
+
+    /**
+     * Get tile in direction.
+     * @param {number} d
+     */
+    getDirection(d) {
+        const r = this.r;
+        const c = this.c;
+        switch (d) {
+            case 0:
+                return {r: r + 0, c: c + 1};
+            case 1:
+                return {r: r + 1, c: c + 1};
+            case 2:
+                return {r: r + 1, c: c + 0};
+            case 3:
+                return {r: r + 0, c: c - 1};
+            case 4:
+                return {r: r - 1, c: c + 0};
+            case 5:
+                return {r: r - 1, c: c + 1};
+            default:
+                return undefined;
+        }
+    }
+
+    /**
+     * Get the siblings for a given tile.
+     * @returns {Array}
+     */
+    getSiblings() {
+        const a = [];
+        for(let i = 0; i < 6; i++) {
+            a.push(this.getDirection(i));
+        }
+
+        return a;
     }
 }

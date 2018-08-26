@@ -172,13 +172,14 @@ module.exports = {
 
 		socket.on("move", (move) => {
             console.log("Move: " + socket.id);
+            console.log(user.game.gameboard.getValidMoves(user.game.turn));
             if (user.game.turn === user.playerNo) {
                 // Execute move
-                user.game.gameboard.doMove(move.r, move.c, user.playerNo);
-
-                user.opponent.turn();
-                user.wait();
-                user.game.turn = (user.game.turn + 1) % 2;
+                if (user.game.gameboard.doMove(move.r, move.c, user.playerNo)) {
+                    user.opponent.turn();
+                    user.wait();
+                    user.game.turn = (user.game.turn + 1) % NUM_PLAYERS;
+                }
             }
 		});
 
