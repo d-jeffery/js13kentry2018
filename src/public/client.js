@@ -201,6 +201,15 @@
         );
     }
 
+    // Get the position of a touch relative to the canvas
+    function getTouchPos(canvas, touchEvent) {
+        const rect = canvas.getBoundingClientRect();
+        return new Point(
+            touchEvent.touches[0].clientX - rect.left,
+            touchEvent.touches[0].clientY - rect.top
+        );
+    }
+
     /**
      * Image Loader singleton.
      * Singleton pattern;  http://www.adam-bien.com/roller/abien/entry/singleton_pattern_in_es6_and
@@ -607,7 +616,16 @@
                     const tile = selected[0].tile;
                     socket.emit("move", {r: tile.r, c: tile.c});
                 }
-            })
+            });
+            canvas.addEventListener("touchstart", function (e) {
+                //const mousePos = getTouchPos(canvas, e);
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent("mousedown", {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            }, false);
         }
 
         /**
