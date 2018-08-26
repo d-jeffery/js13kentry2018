@@ -617,15 +617,18 @@
                     socket.emit("move", {r: tile.r, c: tile.c});
                 }
             });
-            canvas.addEventListener("touchstart", function (e) {
-                //const mousePos = getTouchPos(canvas, e);
-                const touch = e.touches[0];
-                const mouseEvent = new MouseEvent("mousedown", {
-                    clientX: touch.clientX,
-                    clientY: touch.clientY
-                });
-                canvas.dispatchEvent(mouseEvent);
-            }, false);
+            canvas.addEventListener("touchstart", (e) => {
+                const pos = getTouchPos(canvas, e);
+
+                const selected = this.actors
+                    .filter(a => a instanceof GameTile)
+                    .filter(a => a.doesIntersect(pos));
+
+                if (selected[0] !== undefined) {
+                    const tile = selected[0].tile;
+                    socket.emit("move", {r: tile.r, c: tile.c});
+                }
+            });
         }
 
         /**
