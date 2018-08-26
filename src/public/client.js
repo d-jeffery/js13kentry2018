@@ -12,9 +12,17 @@
             lose: 0
         },
         canvas, // The game canvas
-        gameboard, // The game board
         playerNo,
         engine;
+
+    var gameboard; // The game board
+
+    /**
+     * Set the gameboard.
+     */
+    function setGameboard(g) {
+        gameboard = g;
+    }
 
     /**
      * Disable all button
@@ -61,7 +69,7 @@
     function bind() {
 
         socket.on("start", (b, n) => {
-            gameboard = b;
+            setGameboard(b);
             playerNo = n;
             console.log(gameboard, playerNo);
             enableButtons();
@@ -70,13 +78,15 @@
         });
 
         socket.on("turn", (b) => {
-            console.log("turn", b);
+            setGameboard(b);
+            console.log("turn", b, playerNo);
             enableButtons();
             setMessage("Your turn!");
         });
 
         socket.on("wait", (b) => {
-            console.log("wait", b);
+            setGameboard(b);
+            console.log("wait", b, playerNo);
             disableButtons();
             setMessage("Opponents turn!");
         });
@@ -115,15 +125,6 @@
             disableButtons();
             setMessage("Connection error!");
         });
-
-        for (let i = 0; i < buttons.length; i++) {
-            ((button, guess) => {
-                button.addEventListener("click", function (e) {
-                    disableButtons();
-                    socket.emit("move", guess);
-                }, false);
-            })(buttons[i], i + 1);
-        }
     }
 
     /**
@@ -588,8 +589,8 @@
                     }
 
                     const tile = gameboard.tiles[i][j];
-                    const x = tile.x * 50 + 30 + 20 * (i % 2);
-                    const y = tile.y * 50 + 30;
+                    const x = tile.c * 50 + 30 + 20 * (i % 2);
+                    const y = tile.r * 50 + 30;
                     this.addActor(new GameTile(new Point(x, y), tile));
                 }
             }
@@ -599,11 +600,12 @@
                 const pos = getMousePos(canvas, e);
 
                 const selected = this.actors
-                    .filter( a => a instanceof GameTile)
-                    .filter( a => a.doesIntersect(pos));
+                    .filter(a => a instanceof GameTile)
+                    .filter(a => a.doesIntersect(pos));
 
                 if (selected[0] !== undefined) {
-                    console.log(selected[0]);
+                    const tile = selected[0].tile;
+                    socket.emit("move", {r: tile.r, c: tile.c});
                 }
             })
         }
@@ -612,8 +614,7 @@
          * @inheritDoc
          */
         update(dt) {
-            super.update(dt)
-
+            super.update(dt);
         }
 
         /**
@@ -640,6 +641,31 @@
          */
         doesIntersect(point) {
             return dist(point, this.pos) < this.r;
+        }
+
+
+        /**
+         * @inheritDoc
+         */
+        update(dt) {
+
+        }
+
+        /**
+         * @inheritDoc
+         */
+        render() {
+
+            this.tile = gameboard.tiles[this.tile.r][this.tile.c];
+
+            if (this.tile.owner === playerNo) {
+                this.debugColour = "#0000FF";
+            } else if (this.tile.owner !== undefined) {
+                this.debugColour = "#FF0000";
+            } else {
+                this.debugColour = "#000000";
+            }
+            super.render();
         }
     }
 

@@ -170,6 +170,10 @@ module.exports = {
 
 		socket.on("move", (move) => {
             console.log("Move: " + socket.id);
+
+            // Execute move
+            user.game.gameboard.doMove(move.r, move.c, user.playerNo);
+
             user.opponent.turn();
             user.wait();
 		});

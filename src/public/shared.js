@@ -70,8 +70,9 @@ class RectGameBoard {
      * @param {boolean} cut - trim the corners
      */
     constructor(cols, rows, cut) {
-        this.r = rows;
         this.c = cols;
+        this.r = rows;
+
         this.cut = cut;
 
         this.tiles = [];
@@ -86,7 +87,7 @@ class RectGameBoard {
         for(let i = 0; i < this.r; i++) {
             this.tiles[i] = [];
             for(let j = 0; j < this.c; j++) {
-                this.tiles[i][j] = new BoardTile(j, i);
+                this.tiles[i][j] = new BoardTile(i, j);
             }
         }
         if (this.cut) {
@@ -96,13 +97,23 @@ class RectGameBoard {
     }
 
     /**
+     * Do move.
+     * @param {number} row
+     * @param {number} col
+     * @param {number} player
+     */
+    doMove(row, col, player) {
+        this.tiles[row][col].setOwner(player);
+    }
+
+    /**
      * Get board tile.
-     * @param {number} x
-     * @param {number} y
+     * @param {number} row
+     * @param {number} col
      * @returns {BoardTile}
      */
-    getBoardTile(x, y) {
-        return this.tiles[y][x];
+    getBoardTile(row, col) {
+        return this.tiles[row][col];
     }
 }
 
@@ -110,9 +121,9 @@ class RectGameBoard {
  * A tile on the board.
  */
 class BoardTile {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
+    constructor(row, col) {
+        this.r = row;
+        this.c = col;
         this.owner = undefined;
     }
 
