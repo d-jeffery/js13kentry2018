@@ -676,7 +676,6 @@
          * @inheritDoc
          */
         render() {
-
             this.tile = gameboard.tiles[this.tile.r][this.tile.c];
 
             if (this.tile.owner === playerNo) {
@@ -687,8 +686,8 @@
                 this.debugColour = "#000000";
             }
             super.render();
-            this.stage.ctx.fillStyle = 'yellow';
-            this.stage.ctx.fillText(`${this.tile.r},${this.tile.c}`, this.pos.x, this.pos.y);
+            // this.stage.ctx.fillStyle = 'yellow';
+            // this.stage.ctx.fillText(`${this.tile.r},${this.tile.c}`, this.pos.x, this.pos.y);
         }
     }
 

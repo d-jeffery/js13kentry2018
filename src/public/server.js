@@ -70,7 +70,17 @@ class Game {
 	 * Final score
 	 */
 	score() {
-
+		const score = this.gameboard.getScores();
+        if (score[this.user1.playerNo] > score[this.user2.playerNo]) {
+            this.user1.win();
+            this.user2.lose();
+        } else if (score[this.user1.playerNo] < score[this.user2.playerNo]) {
+            this.user2.win();
+            this.user1.lose();
+        } else {
+            this.user1.draw();
+            this.user2.draw();
+        }
 	}
 
 }

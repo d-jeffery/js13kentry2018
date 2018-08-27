@@ -176,12 +176,34 @@ class RectGameBoard {
     isBoardFilled() {
         for(let i = 0; i < this.r; i++) {
             for(let j = 0; j < this.c; j++) {
-                if (this.tiles[i][j] !== null && this.tiles[i][j].owner === undefined) {
+                if (this.tiles[i][j] !== null &&
+                    this.tiles[i][j].owner === undefined) {
                     return false;
                 }
             }
         }
         return true;
+    }
+
+    /**
+     * Get the current score.
+     * @returns {Array}
+     */
+    getScores() {
+        const score = [];
+        for(let i = 0; i < this.r; i++) {
+            for(let j = 0; j < this.c; j++) {
+                if (this.tiles[i][j] !== null &&
+                    this.tiles[i][j].owner !== undefined) {
+                    if (score[this.tiles[i][j].owner] === undefined) {
+                        score[this.tiles[i][j].owner] = 1;
+                    } else {
+                        score[this.tiles[i][j].owner]++
+                    }
+                }
+            }
+        }
+        return score;
     }
 
     /**
