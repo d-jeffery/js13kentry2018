@@ -638,7 +638,40 @@
          * @inheritDoc
          */
         render() {
-            super.render()
+            const ctx = this.ctx;
+
+            // Setup gameboard
+            for(let i = 0; i < gameboard.r; i++) {
+                for(let j = 0; j < gameboard.c; j++) {
+                    if (gameboard.tiles[i][j] === null) {
+                        continue;
+                    }
+                    const tile = gameboard.tiles[i][j];
+                    const gameTile = new BoardTile(tile.r, tile.c);
+                    gameTile.getSiblings()
+                        .filter(b => gameboard.tiles[b.r] !== undefined)
+                        .map(b => gameboard.tiles[b.r][b.c])
+                        .filter(b => b)
+                        .forEach(b => {
+                            ctx.strokeStyle = "#000000";
+                            ctx.lineWidth = 2;
+                            const mx = tile.c * 50 + 30 + 20 * (i % 2);
+                            const my = tile.r * 50 + 30;
+                            ctx.moveTo(mx, my);
+
+                            const lx = b.c * 50 + 30 + 20 * (b.r % 2);
+                            const ly = b.r * 50 + 30;
+                            ctx.lineTo(lx, ly);
+                            ctx.stroke();
+                        })
+
+                    // const x = tile.c * 50 + 30 + 20 * (i % 2);
+                    // const y = tile.r * 50 + 30;
+
+                }
+            }
+
+            super.render();
         }
     }
 
@@ -674,6 +707,7 @@
          */
         render() {
             this.tile = gameboard.tiles[this.tile.r][this.tile.c];
+            const ctx = this.stage.ctx;
 
             if (this.tile.owner === playerNo) {
                 this.debugColour = "#0000FF";
@@ -687,7 +721,6 @@
 
             if (moves.filter(t => t.r === this.tile.r &&
                 t.c === this.tile.c).length > 0) {
-                const ctx = this.stage.ctx;
 
                 ctx.strokeStyle = "#777777";
                 ctx.lineWidth = 5;
