@@ -669,16 +669,17 @@
         render() {
             const ctx = this.ctx;
 
-            /*for(const m of this.mesh) {
+            for(const m of this.mesh) {
                 const from = m.from;
                 const to = m.to;
                 ctx.strokeStyle = "#000000";
                 ctx.lineWidth = 2;
+                ctx.beginPath();
                 ctx.moveTo(from.x, from.y);
                 ctx.lineTo(to.x, to.y);
                 ctx.stroke();
 
-            }*/
+            }
             super.render();
         }
     }
