@@ -15,14 +15,8 @@
         playerNo,
         engine;
 
-    var gameboard; // The game board
-
-    /**
-     * Set the gameboard.
-     */
-    function setGameboard(g) {
-        gameboard = g;
-    }
+    var gameboard, // The game board
+        moves;
 
     /**
      * Disable all button
@@ -69,7 +63,7 @@
     function bind() {
 
         socket.on("start", (b, n) => {
-            setGameboard(b);
+            gameboard = b;
             playerNo = n;
             console.log(gameboard, playerNo);
             enableButtons();
@@ -77,16 +71,18 @@
             engine.start();
         });
 
-        socket.on("turn", (b) => {
-            setGameboard(b);
-            console.log("turn", b, playerNo);
+        socket.on("turn", (b, m) => {
+            gameboard = b;
+            moves = m;
+            console.log("turn", playerNo, moves);
             enableButtons();
             setMessage("Your turn!");
         });
 
         socket.on("wait", (b) => {
-            setGameboard(b);
-            console.log("wait", b, playerNo);
+            gameboard = b;
+            moves = [];
+            console.log("wait", playerNo, moves);
             disableButtons();
             setMessage("Opponents turn!");
         });
@@ -653,6 +649,7 @@
         constructor(origin, tile) {
             super(origin, 20, {layer: tile.y});
             this.tile = tile;
+            this.accum = 0;
         }
 
         /**
@@ -669,7 +666,7 @@
          * @inheritDoc
          */
         update(dt) {
-
+            this.accum = (this.accum + dt) % Math.PI;
         }
 
         /**
@@ -685,9 +682,21 @@
             } else {
                 this.debugColour = "#000000";
             }
+
             super.render();
-            // this.stage.ctx.fillStyle = 'yellow';
-            // this.stage.ctx.fillText(`${this.tile.r},${this.tile.c}`, this.pos.x, this.pos.y);
+
+            if (moves.filter(t => t.r === this.tile.r &&
+                t.c === this.tile.c).length > 0) {
+                const ctx = this.stage.ctx;
+
+                ctx.strokeStyle = "#777777";
+                ctx.lineWidth = 5;
+                ctx.globalAlpha = 1 - (Math.sin(this.accum) / 2);
+                ctx.beginPath();
+                ctx.arc(this.pos.x, this.pos.y, this.r - 3, 0, 2 * Math.PI);
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+            }
         }
     }
 

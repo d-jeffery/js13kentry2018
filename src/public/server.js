@@ -131,7 +131,9 @@ class User {
 	 * Emit turn event.
      */
 	turn() {
-        this.socket.emit("turn", this.game.gameboard);
+        this.socket.emit("turn",
+            this.game.gameboard,
+            this.game.gameboard.getValidMoves(this.playerNo));
     }
 
 	/**
@@ -169,7 +171,8 @@ module.exports = {
 		findOpponent(user);
 
 		if (user.opponent) {
-		    user.opponent.wait()
+		    user.opponent.wait();
+            user.turn();
         }
 
 		socket.on("disconnect", () => {

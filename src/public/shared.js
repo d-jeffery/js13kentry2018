@@ -147,6 +147,7 @@ class RectGameBoard {
     /**
      * Return array of valid moves.
      * @param player
+     * @return {Set}
      */
     getValidMoves(player) {
         let claimable = [];
