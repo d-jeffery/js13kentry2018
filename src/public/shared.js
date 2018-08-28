@@ -90,6 +90,12 @@ class RectGameBoard {
         this.tiles[halfR][halfC + 1].owner = PLAYER_2;
         this.tiles[halfR + 1][halfC].owner = PLAYER_2;
         this.tiles[halfR + 1][halfC + 1].owner = PLAYER_1;
+
+        this.tiles[1][1].score = 5;
+        this.tiles[1][this.c - 2].score = 5;
+
+        this.tiles[this.r - 2][1].score = 5;
+        this.tiles[this.r - 2][this.c - 2].score = 5
     }
 
     /**
@@ -197,9 +203,9 @@ class RectGameBoard {
                 if (this.tiles[i][j] !== null &&
                     this.tiles[i][j].owner !== undefined) {
                     if (score[this.tiles[i][j].owner] === undefined) {
-                        score[this.tiles[i][j].owner] = 1;
+                        score[this.tiles[i][j].owner] = this.tiles[i][j].score;
                     } else {
-                        score[this.tiles[i][j].owner]++
+                        score[this.tiles[i][j].owner] += this.tiles[i][j].score;
                     }
                 }
             }
@@ -226,6 +232,7 @@ class BoardTile {
         this.r = row;
         this.c = col;
         this.owner = undefined;
+        this.score = 1;
     }
 
     /**

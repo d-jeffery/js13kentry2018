@@ -124,7 +124,9 @@ class User {
      * Emit wait event.
      */
     wait() {
-        this.socket.emit("wait", this.game.gameboard);
+        this.socket.emit("wait",
+            this.game.gameboard,
+            this.game.gameboard.getScores());
     }
 
     /**
@@ -133,6 +135,7 @@ class User {
 	turn() {
         this.socket.emit("turn",
             this.game.gameboard,
+            this.game.gameboard.getScores(),
             this.game.gameboard.getValidMoves(this.playerNo));
     }
 

@@ -18,11 +18,7 @@ window.requestAnimFrame = (function (callback) {
         buttons, //Button elements
         message, //Message element
         score, //Score element
-        points = { //Game points
-            draw: 0,
-            win: 0,
-            lose: 0
-        },
+        points = [0, 0],
         canvas, // The game canvas
         playerNo,
         engine;
@@ -63,10 +59,9 @@ window.requestAnimFrame = (function (callback) {
     function displayScore(text) {
         score.innerHTML = [
             "<h2>" + text + "</h2>",
-            "Won: " + points.win,
-            "Lost: " + points.lose,
-            "Draw: " + points.draw
-        ].join("<br>");
+            "Blue: " + points[playerNo], "<br>",
+            "Red: " + points[(playerNo + 1) % NUM_PLAYERS], "<br>"
+        ].join("");
     }
 
     /**
@@ -83,34 +78,35 @@ window.requestAnimFrame = (function (callback) {
             engine.start();
         });
 
-        socket.on("turn", (b, m) => {
+        socket.on("turn", (b, p, m) => {
             gameboard = b;
             moves = m;
-            console.log("turn", playerNo, moves);
+            points = p;
+            console.log("turn", playerNo, p, moves);
             enableButtons();
             setMessage("Your turn!");
+            displayScore("The score");
         });
 
-        socket.on("wait", (b) => {
+        socket.on("wait", (b, p) => {
             gameboard = b;
             moves = [];
-            console.log("wait", playerNo, moves);
+            points = p;
+            console.log("wait", playerNo, p);
             disableButtons();
             setMessage("Opponents turn!");
+            displayScore("The score");
         });
 
         socket.on("win", () => {
-            points.win++;
             displayScore("You win!");
         });
 
         socket.on("lose", () => {
-            points.lose++;
             displayScore("You lose!");
         });
 
         socket.on("draw", () => {
-            points.draw++;
             displayScore("Draw!");
         });
 
@@ -144,7 +140,7 @@ window.requestAnimFrame = (function (callback) {
         message = document.getElementById("message");
         score = document.getElementById("score");
         canvas = document.getElementById("game");
-        engine = setupEngine(480, 640, canvas);
+        engine = setupEngine(480, 540, canvas);
         gameboard = undefined;
         disableButtons();
         bind();
@@ -609,7 +605,7 @@ window.requestAnimFrame = (function (callback) {
 
                     const tile = gameboard.tiles[i][j];
                     const x = tile.c * 65 + 60 + this.tileSize * (i % 2);
-                    const y = tile.r * 65 + 60;
+                    const y = tile.r * 65 + 30;
                     this.addActor(new GameTile(new Point(x, y), this.tileSize, tile));
                 }
             }
@@ -655,11 +651,11 @@ window.requestAnimFrame = (function (callback) {
                         .filter(b => b)
                         .forEach(b => {
                             const mx = tile.c * 65 + 60 + this.tileSize * (i % 2);
-                            const my = tile.r * 65 + 60;
+                            const my = tile.r * 65 + 30;
                             // ctx.moveTo(mx, my);
 
                             const lx = b.c * 65 + 60 + this.tileSize * (b.r % 2);
-                            const ly = b.r * 65 + 60;
+                            const ly = b.r * 65 + 30;
                             // ctx.lineTo(lx, ly);
                             // ctx.stroke();
                             this.mesh.push({from: new Point(mx, my), to: new Point(lx, ly)})
@@ -740,6 +736,14 @@ window.requestAnimFrame = (function (callback) {
             }
 
             super.render();
+
+            if (this.tile.score > 1) {
+                ctx.fillStyle = "#FFFF00";
+                ctx.font = "20px Arial";
+                ctx.globalAlpha = 1 - (Math.sin(this.accum) / 2);
+                ctx.fillText("+" + this.tile.score, this.pos.x - 10, this.pos.y + 5)
+                ctx.globalAlpha = 1;
+            }
 
             if (moves.filter(t => t.r === this.tile.r &&
                 t.c === this.tile.c).length > 0) {
