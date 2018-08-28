@@ -1,5 +1,17 @@
 "use strict";
 
+// Get a regular interval for drawing to the screen
+window.requestAnimFrame = (function (callback) {
+    return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimaitonFrame ||
+        function (callback) {
+            window.setTimeout(callback, 1000/60);
+        };
+})();
+
 (function () {
 
     let socket, //Socket.IO client
@@ -132,7 +144,7 @@
         message = document.getElementById("message");
         score = document.getElementById("score");
         canvas = document.getElementById("game");
-        engine = setupEngine(640, 320, canvas);
+        engine = setupEngine(480, 640, canvas);
         gameboard = undefined;
         disableButtons();
         bind();
@@ -332,9 +344,9 @@
                 }
                 engine.render();
 
-                window.requestAnimationFrame(tick);
+                window.requestAnimFrame(tick);
             }
-            window.requestAnimationFrame(tick);
+            window.requestAnimFrame(tick);
         }
 
         /**
@@ -579,6 +591,7 @@
         constructor(w, h) {
             super(w, h);
             this.mesh = [];
+            this.tileSize = 25;
         }
 
         /**
@@ -595,9 +608,9 @@
                     }
 
                     const tile = gameboard.tiles[i][j];
-                    const x = tile.c * 50 + 30 + 20 * (i % 2);
-                    const y = tile.r * 50 + 30;
-                    this.addActor(new GameTile(new Point(x, y), tile));
+                    const x = tile.c * 65 + 60 + this.tileSize * (i % 2);
+                    const y = tile.r * 65 + 60;
+                    this.addActor(new GameTile(new Point(x, y), this.tileSize, tile));
                 }
             }
 
@@ -641,12 +654,12 @@
                         .map(b => gameboard.tiles[b.r][b.c])
                         .filter(b => b)
                         .forEach(b => {
-                            const mx = tile.c * 50 + 30 + 20 * (i % 2);
-                            const my = tile.r * 50 + 30;
+                            const mx = tile.c * 65 + 60 + this.tileSize * (i % 2);
+                            const my = tile.r * 65 + 60;
                             // ctx.moveTo(mx, my);
 
-                            const lx = b.c * 50 + 30 + 20 * (b.r % 2);
-                            const ly = b.r * 50 + 30;
+                            const lx = b.c * 65 + 60 + this.tileSize * (b.r % 2);
+                            const ly = b.r * 65 + 60;
                             // ctx.lineTo(lx, ly);
                             // ctx.stroke();
                             this.mesh.push({from: new Point(mx, my), to: new Point(lx, ly)})
@@ -688,8 +701,8 @@
      * Game tile.
      */
     class GameTile extends CircleActor {
-        constructor(origin, tile) {
-            super(origin, 20, {layer: tile.y});
+        constructor(origin, size, tile) {
+            super(origin, size, {layer: tile.y});
             this.tile = tile;
             this.accum = 0;
         }

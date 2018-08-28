@@ -47,7 +47,7 @@ class Game {
 
 		this.turn = PLAYER_1;
 		//this.gameboard = new HexGameBoard(5);
-        this.gameboard = new RectGameBoard(8, 6, false);
+        this.gameboard = new RectGameBoard(6, 8, false);
 	}
 
 	/**
