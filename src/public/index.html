@@ -11,7 +11,47 @@
             padding: 0;
         }
 
-        .blue
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+
+        #hud {
+
+            position: absolute;
+            top: 560px;
+            bottom: 0;
+            width: 100%;
+        }
+
+        #hud .inner {
+            border: black 4px solid;
+            padding: 10px 10px;
+        }
+
+        #hud span {
+            display: inline-block;
+            vertical-align: middle;
+            width: 45%;
+        }
+
+        #message .zoom {
+            animation-name: pulse;
+            animation-duration: 4s;
+            animation-iteration-count: infinite;
+        }
+
+        @keyframes pulse {
+            0%   {
+                transform: scale(1);
+            }
+            50%  {
+                transform: scale(1.5);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
 
     </style>
 </head>
@@ -19,13 +59,14 @@
 
 <div style="text-align:center">
     <div>
-        <h1 id="message"></h1>
         <canvas id="game"></canvas>
-        <div id="score"></div>
-        <p>
-            <a href="/stat">Statistics</a>
-        </p>
-    </div>
+        <div id="hud">
+            <div class="inner">
+                <span id="message"></span>
+                <span id="score"></span>
+            </div>
+        </div>
+    </span>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>

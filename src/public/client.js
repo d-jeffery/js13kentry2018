@@ -47,9 +47,10 @@ window.requestAnimFrame = (function (callback) {
     /**
      * Set message text
      * @param {string} text
+     * @param {string} clazz
      */
-    function setMessage(text) {
-        message.innerHTML = text;
+    function setMessage(text, clazz) {
+        message.innerHTML = `<h2 class='${clazz}'>${text}</h2>`;
     }
 
     /**
@@ -59,7 +60,7 @@ window.requestAnimFrame = (function (callback) {
     function displayScore(text) {
         score.innerHTML = [
             "<h2>" + text + "</h2>",
-            "Blue: " + points[playerNo], "<br>",
+            "Blue: " + points[playerNo], " -- ",
             "Red: " + points[(playerNo + 1) % NUM_PLAYERS], "<br>"
         ].join("");
     }
@@ -84,7 +85,7 @@ window.requestAnimFrame = (function (callback) {
             points = p;
             console.log("turn", playerNo, p, moves);
             enableButtons();
-            setMessage("Your turn!");
+            setMessage("Your turn!", "zoom");
             displayScore("The score");
         });
 
