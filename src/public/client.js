@@ -15,7 +15,10 @@ window.requestAnimFrame = (function (callback) {
 (function () {
 
     let socket, //Socket.IO client
-        buttons, //Button elements
+        intro, //Intro wrapper
+        game, //Game wrapper
+        findHuman, // Find human button
+        status, //Status element
         message, //Message element
         score, //Score element
         points = [0, 0],
@@ -27,21 +30,11 @@ window.requestAnimFrame = (function (callback) {
         moves;
 
     /**
-     * Disable all button
+     * Set the status text.
+     * @param {string} text
      */
-    function disableButtons() {
-        for (let i = 0; i < buttons.length; i++) {
-            buttons[i].setAttribute("disabled", "disabled");
-        }
-    }
-
-    /**
-     * Enable all button
-     */
-    function enableButtons() {
-        for (let i = 0; i < buttons.length; i++) {
-            buttons[i].removeAttribute("disabled");
-        }
+    function setStatus(text) {
+        status.innerHTML = `<h2>${text}</h2>`;
     }
 
     /**
@@ -66,6 +59,35 @@ window.requestAnimFrame = (function (callback) {
     }
 
     /**
+     * Show intro element.
+     */
+    function showIntro() {
+        intro.style.display = "block";
+    }
+
+    /**
+     * Hide intro element.
+     */
+    function hideIntro() {
+        intro.style.display = "none";
+    }
+
+    /**
+     * Show game element
+     */
+    function showGame() {
+        console.log(game);
+        game.style.display = "block"
+    }
+
+    /**
+     * Hide game element.
+     */
+    function hideGame() {
+        game.style.display = "none";
+    }
+
+    /**
      * Binde Socket.IO and button events
      */
     function bind() {
@@ -73,8 +95,9 @@ window.requestAnimFrame = (function (callback) {
         socket.on("start", (b, n) => {
             gameboard = b;
             playerNo = n;
+            showGame();
+            hideIntro();
             console.log(gameboard, playerNo);
-            enableButtons();
             setMessage("Game Start!");
             engine.start();
         });
@@ -84,7 +107,6 @@ window.requestAnimFrame = (function (callback) {
             moves = m;
             points = p;
             console.log("turn", playerNo, p, moves);
-            enableButtons();
             setMessage("Your turn!", "zoom");
             displayScore("The score");
         });
@@ -94,7 +116,6 @@ window.requestAnimFrame = (function (callback) {
             moves = [];
             points = p;
             console.log("wait", playerNo, p);
-            disableButtons();
             setMessage("Opponents turn!");
             displayScore("The score");
         });
@@ -112,24 +133,33 @@ window.requestAnimFrame = (function (callback) {
         });
 
         socket.on("end", () => {
-            disableButtons();
-            setMessage("Waiting for opponent...");
+            hideGame();
+            showIntro();
+            setStatus("Waiting for opponent...");
         });
 
         socket.on("connect", () => {
-            disableButtons();
-            setMessage("Waiting for opponent...");
+            hideGame();
+            showIntro();
+            setStatus("Connected to server.");
         });
 
         socket.on("disconnect", () => {
-            disableButtons();
-            setMessage("Connection lost!");
+            hideGame();
+            showIntro();
+            setStatus("Connection lost!");
         });
 
         socket.on("error", () => {
-            disableButtons();
-            setMessage("Connection error!");
+            hideGame();
+            showIntro();
+            setStatus("Connection error!");
         });
+
+        findHuman.addEventListener("click", function (e) {
+            setStatus("Waiting for opponent...");
+            socket.emit("find-human");
+        }, false);
     }
 
     /**
@@ -137,13 +167,15 @@ window.requestAnimFrame = (function (callback) {
      */
     function init() {
         socket = io({ upgrade: false, transports: ["websocket"] });
-        buttons = document.getElementsByTagName("button");
+        intro = document.getElementById("intro-wrapper");
+        game = document.getElementById("game-wrapper");
+        findHuman = document.getElementById("find-human");
+        status = document.getElementById("status");
         message = document.getElementById("message");
         score = document.getElementById("score");
         canvas = document.getElementById("game");
         engine = setupEngine(320, 400, canvas);
         gameboard = undefined;
-        disableButtons();
         bind();
     }
 
@@ -745,7 +777,7 @@ window.requestAnimFrame = (function (callback) {
                 ctx.fillStyle = "#FFFF00";
                 ctx.font = "20px Arial";
                 ctx.globalAlpha = 1 - (Math.sin(this.accum) / 2);
-                ctx.fillText("+" + this.tile.score, this.pos.x - 10, this.pos.y + 5)
+                ctx.fillText("+" + this.tile.score, this.pos.x - 10, this.pos.y + 5);
                 ctx.globalAlpha = 1;
             }
 

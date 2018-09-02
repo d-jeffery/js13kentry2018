@@ -170,13 +170,18 @@ module.exports = {
 
 	io: (socket) => {
 		const user = new User(socket);
-		users.push(user);
-		findOpponent(user);
 
-		if (user.opponent) {
-		    user.opponent.wait();
-            user.turn();
-        }
+		socket.on("find-human", () => {
+            console.log("Find Human: " + socket.id);
+
+            users.push(user);
+            findOpponent(user);
+
+            if (user.opponent) {
+                user.opponent.wait();
+                user.turn();
+            }
+        });
 
 		socket.on("disconnect", () => {
 			console.log("Disconnected: " + socket.id);
