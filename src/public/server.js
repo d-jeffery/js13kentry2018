@@ -2,23 +2,20 @@
 
 /**
  * User sessions
- * @param {Array} users
+ * @param {Set} users
  */
-const users = [];
+const users = new Set();
 
 /**
  * Find opponent for a user
  * @param {User} user
  */
 function findOpponent(user) {
-	for (let i = 0; i < users.length; i++) {
-		if (
-			user !== users[i] &&
-			users[i].opponent === null
-		) {
-			new Game(user, users[i]).start();
-		}
-	}
+	for (let opponent of users) {
+	    if (user !== opponent && opponent.opponent === null) {
+            new Game(user, opponent).start();
+        }
+    }
 }
 
 /**
@@ -26,7 +23,7 @@ function findOpponent(user) {
  * @param {User} user
  */
 function removeUser(user) {
-	users.splice(users.indexOf(user), 1);
+	users.delete(user);
 }
 
 /**
@@ -174,7 +171,7 @@ module.exports = {
 		socket.on("find-human", () => {
             console.log("Find Human: " + socket.id);
 
-            users.push(user);
+            users.add(user);
             findOpponent(user);
 
             if (user.opponent) {
