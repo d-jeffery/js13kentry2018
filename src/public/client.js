@@ -141,7 +141,7 @@ window.requestAnimFrame = (function (callback) {
         message = document.getElementById("message");
         score = document.getElementById("score");
         canvas = document.getElementById("game");
-        engine = setupEngine(480, 540, canvas);
+        engine = setupEngine(320, 400, canvas);
         gameboard = undefined;
         disableButtons();
         bind();
@@ -588,7 +588,9 @@ window.requestAnimFrame = (function (callback) {
         constructor(w, h) {
             super(w, h);
             this.mesh = [];
-            this.tileSize = 25;
+            this.tileSize = 20;
+            this.gap = 50;
+            this.padding = this.tileSize + 2;
         }
 
         /**
@@ -605,8 +607,8 @@ window.requestAnimFrame = (function (callback) {
                     }
 
                     const tile = gameboard.tiles[i][j];
-                    const x = tile.c * 65 + 60 + this.tileSize * (i % 2);
-                    const y = tile.r * 65 + 30;
+                    const x = tile.c * this.gap + this.padding + (this.gap / 2) * (i % 2);
+                    const y = tile.r * this.gap + this.padding;
                     this.addActor(new GameTile(new Point(x, y), this.tileSize, tile));
                 }
             }
@@ -651,12 +653,12 @@ window.requestAnimFrame = (function (callback) {
                         .map(b => gameboard.tiles[b.r][b.c])
                         .filter(b => b)
                         .forEach(b => {
-                            const mx = tile.c * 65 + 60 + this.tileSize * (i % 2);
-                            const my = tile.r * 65 + 30;
+                            const mx = tile.c * this.gap + this.padding + (this.gap / 2) * (i % 2);
+                            const my = tile.r * this.gap + this.padding;
                             // ctx.moveTo(mx, my);
 
-                            const lx = b.c * 65 + 60 + this.tileSize * (b.r % 2);
-                            const ly = b.r * 65 + 30;
+                            const lx = b.c * this.gap + this.padding + (this.gap / 2) * (b.r % 2);
+                            const ly = b.r * this.gap + this.padding;
                             // ctx.lineTo(lx, ly);
                             // ctx.stroke();
                             this.mesh.push({from: new Point(mx, my), to: new Point(lx, ly)})
