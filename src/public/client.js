@@ -48,11 +48,10 @@ window.requestAnimFrame = (function (callback) {
 
     /**
      * Set score text
-     * @param {string} text
      */
-    function displayScore(text) {
+    function displayScore() {
         score.innerHTML = [
-            "<h2>" + text + "</h2>",
+            "<h2>" + "The score" + "</h2>",
             "Blue: " + points[playerNo], " -- ",
             "Red: " + points[(playerNo + 1) % NUM_PLAYERS], "<br>"
         ].join("");
@@ -108,7 +107,7 @@ window.requestAnimFrame = (function (callback) {
             points = p;
             console.log("turn", playerNo, p, moves);
             setMessage("Your turn!", "zoom");
-            displayScore("The score");
+            displayScore();
         });
 
         socket.on("wait", (b, p) => {
@@ -117,19 +116,22 @@ window.requestAnimFrame = (function (callback) {
             points = p;
             console.log("wait", playerNo, p);
             setMessage("Opponents turn!");
-            displayScore("The score");
+            displayScore();
         });
 
         socket.on("win", () => {
-            displayScore("You win!");
+            setMessage("You win!", "zoom");
+            displayScore();
         });
 
         socket.on("lose", () => {
-            displayScore("You lose!");
+            setMessage("You lose!");
+            displayScore();
         });
 
         socket.on("draw", () => {
-            displayScore("Draw!");
+            setMessage("Draw!");
+            displayScore();
         });
 
         socket.on("end", () => {
