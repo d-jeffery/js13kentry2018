@@ -590,7 +590,8 @@ window.requestAnimFrame = (function (callback) {
             this.mesh = [];
             this.tileSize = 20;
             this.gap = 50;
-            this.padding = this.tileSize + 2;
+            this.paddingX = this.tileSize + 2;
+            this.paddingY = this.tileSize + 8;
         }
 
         /**
@@ -607,8 +608,8 @@ window.requestAnimFrame = (function (callback) {
                     }
 
                     const tile = gameboard.tiles[i][j];
-                    const x = tile.c * this.gap + this.padding + (this.gap / 2) * (i % 2);
-                    const y = tile.r * this.gap + this.padding;
+                    const x = tile.c * this.gap + this.paddingX + (this.gap / 2) * (i % 2);
+                    const y = tile.r * this.gap + this.paddingY;
                     this.addActor(new GameTile(new Point(x, y), this.tileSize, tile));
                 }
             }
@@ -653,12 +654,12 @@ window.requestAnimFrame = (function (callback) {
                         .map(b => gameboard.tiles[b.r][b.c])
                         .filter(b => b)
                         .forEach(b => {
-                            const mx = tile.c * this.gap + this.padding + (this.gap / 2) * (i % 2);
-                            const my = tile.r * this.gap + this.padding;
+                            const mx = tile.c * this.gap + this.paddingX + (this.gap / 2) * (i % 2);
+                            const my = tile.r * this.gap + this.paddingY;
                             // ctx.moveTo(mx, my);
 
-                            const lx = b.c * this.gap + this.padding + (this.gap / 2) * (b.r % 2);
-                            const ly = b.r * this.gap + this.padding;
+                            const lx = b.c * this.gap + this.paddingX + (this.gap / 2) * (b.r % 2);
+                            const ly = b.r * this.gap + this.paddingY;
                             // ctx.lineTo(lx, ly);
                             // ctx.stroke();
                             this.mesh.push({from: new Point(mx, my), to: new Point(lx, ly)})
