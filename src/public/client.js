@@ -812,7 +812,7 @@ window.requestAnimFrame = (function (callback) {
 
             if (this.tile.score > 1) {
                 ctx.fillStyle = "#FFFF00";
-                ctx.font = "20px Arial";
+                ctx.font = "bold 20px Arial";
                 ctx.globalAlpha = 1 - (Math.sin(this.accum) / 2);
                 ctx.fillText("+" + this.tile.score, this.pos.x - 10, this.pos.y + 5);
                 ctx.globalAlpha = 1;
