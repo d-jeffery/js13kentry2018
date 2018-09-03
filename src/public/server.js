@@ -210,35 +210,37 @@ class BasicAI extends User {
      * Emit turn event.
      */
     turn() {
-        if (this.game.ended()) {
-            this.game.score();
+        const user = this;
+        if (user.game.ended()) {
+            user.game.score();
             return;
         }
+        setTimeout(function () {
+            const moves = user.game.gameboard.getValidMoves(user.playerNo);
+            if (moves.length > 0) {
+                let bestMove = undefined;
+                let bestScore = -1;
 
-        const moves = this.game.gameboard.getValidMoves(this.playerNo);
-        if (moves.length > 0) {
-            let bestMove = undefined;
-            let bestScore = -1;
+                moves.forEach((m, index) => {
+                    const score = user.game.gameboard.score(m.r, m.c, user.playerNo);
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMove = index;
+                    }
+                });
+                user.game.gameboard.doMove(moves[bestMove].r, moves[bestMove].c, user.playerNo);
+                user.passed = false;
+            } else {
+                user.passed = true;
+            }
+            user.opponent.turn();
+            user.wait();
+            user.game.turn = (user.game.turn + 1) % NUM_PLAYERS;
 
-            moves.forEach((m, index) => {
-                const score = this.game.gameboard.score(m.r, m.c, this.playerNo);
-                if (score > bestScore) {
-                    bestScore = score;
-                    bestMove = index;
-                }
-            });
-            this.game.gameboard.doMove(moves[bestMove].r, moves[bestMove].c, this.playerNo);
-            this.passed = false;
-        } else {
-            this.passed = true;
-        }
-        this.opponent.turn();
-        this.wait();
-        this.game.turn = (this.game.turn + 1) % NUM_PLAYERS;
-
-        if (this.game.ended()) {
-            this.game.score();
-        }
+            if (user.game.ended()) {
+                user.game.score();
+            }
+        }, 1000);
     }
 
     /**
