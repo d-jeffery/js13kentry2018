@@ -802,6 +802,7 @@ window.requestAnimFrame = (function (callback) {
                 colour = "#000000";
             }
 
+            ctx.save();
             ctx.beginPath();
             ctx.fillStyle = colour;
             ctx.strokeStyle = "#000000";
@@ -809,6 +810,7 @@ window.requestAnimFrame = (function (callback) {
             ctx.arc(this.pos.x, this.pos.y, this.r, 0, 2 * Math.PI);
             ctx.fill();
             ctx.stroke();
+            ctx.restore();
 
             if (this.tile.score > 1) {
                 ctx.fillStyle = "#FFFF00";
@@ -821,7 +823,7 @@ window.requestAnimFrame = (function (callback) {
             if (moves.filter(t => t.r === this.tile.r &&
                 t.c === this.tile.c).length > 0) {
 
-                ctx.strokeStyle = "#777777";
+                ctx.strokeStyle = "#cccccc";
                 ctx.lineWidth = 5;
                 ctx.globalAlpha = 1 - (Math.sin(this.accum) / 2);
                 ctx.beginPath();
