@@ -68,7 +68,8 @@ class Game {
 	 * @return {boolean}
 	 */
 	ended() {
-	    return this.gameboard.isBoardFilled()
+	    return this.gameboard.isBoardFilled() ||
+            (this.user1.passed && this.user2.passed)
 	}
 
 	/**
@@ -103,6 +104,7 @@ class User {
 		this.playerNo = null;
 		this.game = null;
 		this.opponent = null;
+		this.passed = false;
 	}
 
 	/**
@@ -176,6 +178,7 @@ class BasicAI extends User {
         this.playerNo = null;
         this.game = null;
         this.opponent = null;
+        this.passed = false;
     }
 
     /**
@@ -213,19 +216,22 @@ class BasicAI extends User {
         }
 
         const moves = this.game.gameboard.getValidMoves(this.playerNo);
-        let bestMove = undefined;
-        let bestScore = -1;
+        if (moves.length > 0) {
+            let bestMove = undefined;
+            let bestScore = -1;
 
-        moves.forEach((m, index) => {
-            const score = this.game.gameboard.score(m.r, m.c, this.playerNo);
-            if (score > bestScore) {
-                bestScore = score;
-                bestMove = index;
-            }
-        });
-
-        this.game.gameboard.doMove(moves[bestMove].r, moves[bestMove].c, this.playerNo);
-
+            moves.forEach((m, index) => {
+                const score = this.game.gameboard.score(m.r, m.c, this.playerNo);
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMove = index;
+                }
+            });
+            this.game.gameboard.doMove(moves[bestMove].r, moves[bestMove].c, this.playerNo);
+            this.passed = false;
+        } else {
+            this.passed = true;
+        }
         this.opponent.turn();
         this.wait();
         this.game.turn = (this.game.turn + 1) % NUM_PLAYERS;
@@ -303,6 +309,7 @@ module.exports = {
             if (user.game.turn === user.playerNo) {
                 // Execute move
                 if (user.game.gameboard.doMove(move.r, move.c, user.playerNo)) {
+                    user.passed = false;
                     user.wait();
                     user.opponent.turn();
                     user.game.turn = (user.game.turn + 1) % NUM_PLAYERS;
@@ -313,6 +320,21 @@ module.exports = {
                 }
             }
 		});
+
+		socket.on("pass", () => {
+            console.log("Pass: " + socket.id);
+            if (user.game.turn === user.playerNo) {
+                // Execute pass
+                user.passed = true;
+                user.wait();
+                user.opponent.turn();
+                user.game.turn = (user.game.turn + 1) % NUM_PLAYERS;
+
+                if (user.game.ended()) {
+                    user.game.score();
+                }
+            }
+        });
 
 		/*socket.on("guess", (guess) => {
 			console.log("Guess: " + socket.id);

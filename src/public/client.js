@@ -76,7 +76,6 @@ window.requestAnimFrame = (function (callback) {
      * Show game element
      */
     function showGame() {
-        console.log(game);
         game.style.display = "block"
     }
 
@@ -97,7 +96,7 @@ window.requestAnimFrame = (function (callback) {
             playerNo = n;
             showGame();
             hideIntro();
-            console.log(gameboard, playerNo);
+            // console.log(gameboard, playerNo);
             setMessage("Game Start!");
             engine.start();
         });
@@ -106,8 +105,16 @@ window.requestAnimFrame = (function (callback) {
             gameboard = b;
             moves = m;
             points = p;
-            console.log("turn", playerNo, p, moves);
-            setMessage("Your turn!", "zoom");
+            // console.log("turn", playerNo, p, moves);
+
+            if (moves.length > 0) {
+                setMessage("Your turn!", "zoom");
+            } else {
+                // console.log("Passing");
+                setMessage("You passed!");
+                socket.emit("pass")
+            }
+
             displayScore();
         });
 
@@ -115,7 +122,7 @@ window.requestAnimFrame = (function (callback) {
             gameboard = b;
             moves = [];
             points = p;
-            console.log("wait", playerNo, p);
+            // console.log("wait", playerNo, p);
             setMessage("Opponents turn!");
             displayScore();
         });
