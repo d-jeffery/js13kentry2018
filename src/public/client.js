@@ -17,7 +17,8 @@ window.requestAnimFrame = (function (callback) {
     let socket, //Socket.IO client
         intro, //Intro wrapper
         game, //Game wrapper
-        findHuman, // Find human button
+        findHuman, //Find human button
+        basicAI, //Basic AI button
         status, //Status element
         message, //Message element
         score, //Score element
@@ -162,6 +163,15 @@ window.requestAnimFrame = (function (callback) {
             setStatus("Waiting for opponent...");
             socket.emit("find-human");
         }, false);
+
+        findHuman.addEventListener("click", function (e) {
+            setStatus("Waiting for opponent...");
+            socket.emit("find-human");
+        }, false);
+
+        basicAI.addEventListener("click", function (e) {
+            socket.emit("start-basic-ai");
+        }, false);
     }
 
     /**
@@ -172,6 +182,7 @@ window.requestAnimFrame = (function (callback) {
         intro = document.getElementById("intro-wrapper");
         game = document.getElementById("game-wrapper");
         findHuman = document.getElementById("find-human");
+        basicAI = document.getElementById("start-basic-ai");
         status = document.getElementById("status");
         message = document.getElementById("message");
         score = document.getElementById("score");

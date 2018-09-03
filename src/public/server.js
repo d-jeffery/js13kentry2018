@@ -27,6 +27,14 @@ function removeUser(user) {
 }
 
 /**
+ * Start game with BasicAI.
+ * @param user
+ */
+function startGameWithAI(user) {
+    new Game(user, new BasicAI()).start();
+}
+
+/**
  * Game class
  */
 class Game {
@@ -156,7 +164,97 @@ class User {
 	draw() {
 		this.socket.emit("draw", this.opponent.guess);
 	}
+}
 
+/**
+ * Basic AI player.
+ */
+class BasicAI extends User {
+
+    constructor() {
+        super(null);
+        this.playerNo = null;
+        this.game = null;
+        this.opponent = null;
+    }
+
+    /**
+     * Start new game
+     * @param {Game} game
+     * @param {User} opponent
+     */
+    start(game, opponent) {
+        this.game = game;
+        this.opponent = opponent;
+    }
+
+    /**
+     * Terminate game
+     */
+    end() {
+        this.game = null;
+        this.opponent = null;
+    }
+
+    /**
+     * Emit wait event.
+     */
+    wait() {
+
+    }
+
+    /**
+     * Emit turn event.
+     */
+    turn() {
+        if (this.game.ended()) {
+            this.game.score();
+            return;
+        }
+
+        const moves = this.game.gameboard.getValidMoves(this.playerNo);
+        let bestMove = undefined;
+        let bestScore = -1;
+
+        moves.forEach((m, index) => {
+            const score = this.game.gameboard.score(m.r, m.c, this.playerNo);
+            if (score > bestScore) {
+                bestScore = score;
+                bestMove = index;
+            }
+        });
+
+        this.game.gameboard.doMove(moves[bestMove].r, moves[bestMove].c, this.playerNo);
+
+        this.opponent.turn();
+        this.wait();
+        this.game.turn = (this.game.turn + 1) % NUM_PLAYERS;
+
+        if (this.game.ended()) {
+            this.game.score();
+        }
+    }
+
+    /**
+     * Trigger win event
+     */
+    win() {
+
+    }
+
+    /**
+     * Trigger lose event
+     */
+    lose() {
+
+    }
+
+    /**
+     * Trigger draw event
+     */
+    draw() {
+
+    }
 }
 
 /**
@@ -180,6 +278,17 @@ module.exports = {
             }
         });
 
+        socket.on("start-basic-ai", () => {
+            console.log("Start basic AI: " + socket.id);
+
+            startGameWithAI(user);
+
+            if (user.opponent) {
+                user.opponent.wait();
+                user.turn();
+            }
+        });
+
 		socket.on("disconnect", () => {
 			console.log("Disconnected: " + socket.id);
 			removeUser(user);
@@ -194,8 +303,8 @@ module.exports = {
             if (user.game.turn === user.playerNo) {
                 // Execute move
                 if (user.game.gameboard.doMove(move.r, move.c, user.playerNo)) {
-                    user.opponent.turn();
                     user.wait();
+                    user.opponent.turn();
                     user.game.turn = (user.game.turn + 1) % NUM_PLAYERS;
                 }
 

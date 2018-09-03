@@ -9,45 +9,6 @@ const PLAYER_2 = 1;
 const NUM_PLAYERS = 2;
 
 /**
- * TODO hexagonal board
- */
-class HexGameBoard {
-    /**
-     * Constructor.
-     * @param {number} d
-     */
-    constructor(d) {
-        this.d = d;
-
-        this.tiles = [];
-        this.createBoard();
-
-    }
-
-    /**
-     * Create the board.
-     */
-    createBoard() {
-        for(let i = 0; i < this.d; i++) {
-            this.tiles[i] = [];
-            for(let j = 0; j < this.d; j++) {
-                this.tiles[i][j] = new BoardTile(j, i);
-            }
-        }
-    }
-
-    /**
-     * Get board tile.
-     * @param {number} x
-     * @param {number} y
-     * @returns {BoardTile}
-     */
-    getBoardTile(x, y) {
-        return this.tiles[y][x];
-    }
-}
-
-/**
  * The rect game board.
  */
 class RectGameBoard {
@@ -120,7 +81,6 @@ class RectGameBoard {
      */
     claim(row, col, player) {
         const tile = this.tiles[row][col];
-        const otherPlayer = (player + 1) % NUM_PLAYERS;
         for(let i = 0; i < 6; i++) {
             let stack = [];
             let nextTile = tile;
@@ -148,6 +108,45 @@ class RectGameBoard {
         }
 
         tile.setOwner(player);
+    }
+
+    /**
+     * Score the move.
+     * @param {number} row
+     * @param {number} col
+     * @param {number} player
+     */
+    score(row, col, player) {
+        const tile = this.tiles[row][col];
+        let score = 0;
+        for(let i = 0; i < 6; i++) {
+            let stack = [];
+            let nextTile = tile;
+            do {
+                let b = nextTile.getDirection(i);
+
+                if (this.tiles[b.r] !== undefined &&
+                    this.tiles[b.r][b.c]
+                ) {
+                    if (this.tiles[b.r][b.c].owner === undefined) {
+                        stack = [];
+                        break;
+                    } else if (this.tiles[b.r][b.c].owner === player) {
+                        break;
+                    } else {
+                        nextTile = this.tiles[b.r][b.c];
+                        stack.push(nextTile);
+                    }
+                } else {
+                    stack =[];
+                    break;
+                }
+            } while (true);
+            stack.forEach(t => score += t.score)
+        }
+
+        score += tile.score;
+        return score;
     }
 
     /**
