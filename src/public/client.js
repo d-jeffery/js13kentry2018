@@ -258,7 +258,12 @@ window.requestAnimFrame = (function (callback) {
         );
     }
 
-    // Get the position of a touch relative to the canvas
+    /**
+     * Get the position of a touch relative to the canvas.
+     * @param {HTMLCanvasElement} canvas
+     * @param {TouchEvent} touchEvent
+     * @returns {Point}
+     */
     function getTouchPos(canvas, touchEvent) {
         const rect = canvas.getBoundingClientRect();
         return new Point(
@@ -782,16 +787,28 @@ window.requestAnimFrame = (function (callback) {
         render() {
             this.tile = gameboard.tiles[this.tile.r][this.tile.c];
             const ctx = this.stage.ctx;
-
+            let colour;
             if (this.tile.owner === playerNo) {
-                this.debugColour = "#0000FF";
+                colour = ctx.createRadialGradient(
+                    this.pos.x - 10, this.pos.y - 10, 0, this.pos.x, this.pos.y, 100);
+                colour.addColorStop(0.2, "#0000FF");
+                colour.addColorStop(0, "#FFFFFF");
             } else if (this.tile.owner !== undefined) {
-                this.debugColour = "#FF0000";
+                colour = ctx.createRadialGradient(
+                    this.pos.x - 10, this.pos.y - 10, 0, this.pos.x, this.pos.y, 100);
+                colour.addColorStop(0.2, "#FF0000");
+                colour.addColorStop(0, "#FFFFFF");
             } else {
-                this.debugColour = "#000000";
+                colour = "#000000";
             }
 
-            super.render();
+            ctx.beginPath();
+            ctx.fillStyle = colour;
+            ctx.strokeStyle = "#000000";
+            ctx.lineWidth = 3;
+            ctx.arc(this.pos.x, this.pos.y, this.r, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.stroke();
 
             if (this.tile.score > 1) {
                 ctx.fillStyle = "#FFFF00";
