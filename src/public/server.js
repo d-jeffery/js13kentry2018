@@ -12,7 +12,8 @@ const users = new Set();
  */
 function findOpponent(user) {
 	for (let opponent of users) {
-	    if (user !== opponent && opponent.opponent === null) {
+	    if (user !== opponent &&
+            opponent.opponent === null) {
             new Game(user, opponent).start();
         }
     }
@@ -289,6 +290,7 @@ module.exports = {
         socket.on("start-basic-ai", () => {
             console.log("Start basic AI: " + socket.id);
 
+            removeUser(user);
             startGameWithAI(user);
 
             if (user.opponent) {
@@ -302,7 +304,6 @@ module.exports = {
 			removeUser(user);
 			if (user.opponent) {
 				user.opponent.end();
-				findOpponent(user.opponent);
 			}
 		});
 

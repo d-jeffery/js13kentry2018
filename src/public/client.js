@@ -171,11 +171,6 @@ window.requestAnimFrame = (function (callback) {
             socket.emit("find-human");
         }, false);
 
-        findHuman.addEventListener("click", function (e) {
-            setStatus("Waiting for opponent...");
-            socket.emit("find-human");
-        }, false);
-
         basicAI.addEventListener("click", function (e) {
             socket.emit("start-basic-ai");
         }, false);
