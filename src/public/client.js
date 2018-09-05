@@ -225,6 +225,29 @@ window.requestAnimFrame = (function (callback) {
     }
 
     /**
+     * A linear interpolator for hexadecimal colors
+     * @param {string} a
+     * @param {string} b
+     * @param {number} amount
+     * @example
+     * // returns #7F7F7F
+     * lerpColor('#000000', '#ffffff', 0.5)
+     * @returns {string}
+     */
+    function lerpColor(a, b, amount) {
+
+        const ah = parseInt(a.replace(/#/g, ''), 16),
+            ar = ah >> 16, ag = ah >> 8 & 0xff, ab = ah & 0xff,
+            bh = parseInt(b.replace(/#/g, ''), 16),
+            br = bh >> 16, bg = bh >> 8 & 0xff, bb = bh & 0xff,
+            rr = ar + amount * (br - ar),
+            rg = ag + amount * (bg - ag),
+            rb = ab + amount * (bb - ab);
+
+        return '#' + ((1 << 24) + (rr << 16) + (rg << 8) + rb | 0).toString(16).slice(1);
+    }
+
+    /**
      * A point.
      */
     class Point {
@@ -761,7 +784,8 @@ window.requestAnimFrame = (function (callback) {
         constructor(origin, size, tile) {
             super(origin, size, {layer: tile.y});
             this.tile = tile;
-            this.accum = 0;
+            this.alphaAccum = 0;
+            this.lerpAccum = 1;
         }
 
         /**
@@ -778,25 +802,33 @@ window.requestAnimFrame = (function (callback) {
          * @inheritDoc
          */
         update(dt) {
-            this.accum = (this.accum + dt) % Math.PI;
+            const player = this.tile.owner;
+            this.tile = gameboard.tiles[this.tile.r][this.tile.c];
+
+            if (player !== undefined && player !== this.tile.owner) {
+                this.lerpAccum = 0;
+            }
+            this.lerpAccum += dt * 2;
+            if (this.lerpAccum > 1) this.lerpAccum = 1;
+
+            this.alphaAccum = (this.alphaAccum + dt) % Math.PI;
         }
 
         /**
          * @inheritDoc
          */
         render() {
-            this.tile = gameboard.tiles[this.tile.r][this.tile.c];
             const ctx = this.stage.ctx;
             let colour;
             if (this.tile.owner === playerNo) {
                 colour = ctx.createRadialGradient(
                     this.pos.x - 10, this.pos.y - 10, 0, this.pos.x, this.pos.y, 100);
-                colour.addColorStop(0.2, "#0000FF");
+                colour.addColorStop(0.2, lerpColor("#FF0000", "#0000FF", this.lerpAccum));
                 colour.addColorStop(0, "#FFFFFF");
             } else if (this.tile.owner !== undefined) {
                 colour = ctx.createRadialGradient(
                     this.pos.x - 10, this.pos.y - 10, 0, this.pos.x, this.pos.y, 100);
-                colour.addColorStop(0.2, "#FF0000");
+                colour.addColorStop(0.2, lerpColor("#0000FF", "#FF0000", this.lerpAccum));
                 colour.addColorStop(0, "#FFFFFF");
             } else {
                 colour = "#000000";
@@ -815,7 +847,7 @@ window.requestAnimFrame = (function (callback) {
             if (this.tile.score > 1) {
                 ctx.fillStyle = "#FFFF00";
                 ctx.font = "bold 20px Arial";
-                ctx.globalAlpha = 1 - (Math.sin(this.accum) / 2);
+                ctx.globalAlpha = 1 - (Math.sin(this.alphaAccum) / 2);
                 ctx.fillText("+" + this.tile.score, this.pos.x - 10, this.pos.y + 5);
                 ctx.globalAlpha = 1;
             }
@@ -825,7 +857,7 @@ window.requestAnimFrame = (function (callback) {
 
                 ctx.strokeStyle = "#cccccc";
                 ctx.lineWidth = 5;
-                ctx.globalAlpha = 1 - (Math.sin(this.accum) / 2);
+                ctx.globalAlpha = 1 - (Math.sin(this.alphaAccum) / 2);
                 ctx.beginPath();
                 ctx.arc(this.pos.x, this.pos.y, this.r - 3, 0, 2 * Math.PI);
                 ctx.stroke();
