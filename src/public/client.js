@@ -53,8 +53,9 @@ window.requestAnimFrame = (function (callback) {
     function displayScore() {
         score.innerHTML = [
             "<h2>" + "The score" + "</h2>",
-            "Blue: " + points[playerNo], " -- ",
-            "Red: " + points[(playerNo + 1) % NUM_PLAYERS], "<br>"
+            "<span class='blue'>" + "Blue: " + points[playerNo] + "</span>",
+            "<span>" + " -- " + "</span>",
+            "<span class='red'>" + "Red: " + points[(playerNo + 1) % NUM_PLAYERS] + "</span>", "<br>"
         ].join("");
     }
 
@@ -108,7 +109,7 @@ window.requestAnimFrame = (function (callback) {
             // console.log("turn", playerNo, p, moves);
 
             if (moves.length > 0) {
-                setMessage("Your turn!", "zoom");
+                setMessage("Your turn!", "zoom blue");
             } else {
                 // console.log("Passing");
                 setMessage("You passed!");
@@ -123,17 +124,17 @@ window.requestAnimFrame = (function (callback) {
             moves = [];
             points = p;
             // console.log("wait", playerNo, p);
-            setMessage("Opponents turn!");
+            setMessage("Opponents turn!", "red");
             displayScore();
         });
 
         socket.on("win", () => {
-            setMessage("You win!", "zoom");
+            setMessage("You win!", "zoom blue");
             displayScore();
         });
 
         socket.on("lose", () => {
-            setMessage("You lose!");
+            setMessage("You lose!", "red");
             displayScore();
         });
 
@@ -850,7 +851,7 @@ window.requestAnimFrame = (function (callback) {
             if (moves.filter(t => t.r === this.tile.r &&
                 t.c === this.tile.c).length > 0) {
 
-                ctx.strokeStyle = "#cccccc";
+                ctx.strokeStyle = "#FFFFFF";
                 ctx.lineWidth = 5;
                 ctx.globalAlpha = 1 - (Math.sin(this.alphaAccum) / 2);
                 ctx.beginPath();
