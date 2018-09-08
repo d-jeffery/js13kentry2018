@@ -55,19 +55,58 @@
         }
 
         #message .zoom {
+            /* Webkit */
+            -webkit-animation-name: pulse;
+            -webkit-animation-duration: 4s;
+            -webkit-animation-iteration-count: infinite;
+
+            /* Mozilla */
+            -moz-animation-name: pulse;
+            -moz-animation-duration: 4s;
+            -moz-animation-iteration-count: infinite;
+
+            /* Opera */
+            -o-animation-name: pulse;
+            -o-animation-duration: 4s;
+            -o-animation-iteration-count: infinite;
+
             animation-name: pulse;
             animation-duration: 4s;
             animation-iteration-count: infinite;
         }
 
-        @keyframes pulse {
-            0%   {
+        @-webkit-keyframes pulse {
+            0%, 100% {
                 transform: scale(1);
             }
             50%  {
                 transform: scale(1.3);
             }
-            100% {
+        }
+
+        @-moz-keyframes pulse {
+            0%, 100% {
                 transform: scale(1);
+            }
+            50%  {
+                transform: scale(1.3);
+            }
+        }
+
+        @-o-keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50%  {
+                transform: scale(1.3);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50%  {
+                transform: scale(1.3);
             }
         }</style></head><body><div id="intro-wrapper" class="wrapper"><h1>Packet Thief</h1><button id="find-human">Find Opponent</button> <button id="start-basic-ai">Play against AI</button><div id="status"></div></div><div id="game-wrapper" class="wrapper"><canvas id="game"></canvas><div id="hud"><div class="inner"><span id="message"></span> <span id="score"></span></div></div></div><script src="/socket.io/socket.io.js"></script><script src="/shared.js"></script><script src="/client.js"></script></body></html>
