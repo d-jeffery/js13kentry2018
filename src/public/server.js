@@ -6,6 +6,15 @@
  */
 const users = new Set();
 
+function startGame(u1, u2) {
+    const coinFlip = (Math.floor(Math.random() * 2) == 0);
+    if (coinFlip) {
+        new Game(u1, u2).start();
+    } else {
+        new Game(u2, u1).start();
+    }
+}
+
 /**
  * Find opponent for a user
  * @param {User} user
@@ -14,17 +23,9 @@ function findOpponent(user) {
 	for (let opponent of users) {
 	    if (user !== opponent &&
             opponent.opponent === null) {
-            new Game(user, opponent).start();
+            startGame(user, opponent);
         }
     }
-}
-
-/**
- * Remove user session
- * @param {User} user
- */
-function removeUser(user) {
-	users.delete(user);
 }
 
 /**
@@ -32,7 +33,16 @@ function removeUser(user) {
  * @param user
  */
 function startGameWithAI(user) {
-    new Game(user, new BasicAI()).start();
+    startGame(user, new BasicAI());
+}
+
+
+/**
+ * Remove user session
+ * @param {User} user
+ */
+function removeUser(user) {
+	users.delete(user);
 }
 
 /**
@@ -51,7 +61,7 @@ class Game {
 		this.user1.playerNo = PLAYER_1;
 		this.user2.playerNo = PLAYER_2;
 
-		this.turn = PLAYER_1;
+		this.turn = Math.floor(Math.random() * 2);
 		//this.gameboard = new HexGameBoard(5);
         this.gameboard = new RectGameBoard(6, 8, false);
 	}
@@ -282,8 +292,13 @@ module.exports = {
             findOpponent(user);
 
             if (user.opponent) {
-                user.opponent.wait();
-                user.turn();
+                if (user.game.turn === user.playerNo) {
+                    user.opponent.wait();
+                    user.turn();
+                } else {
+                    user.opponent.turn();
+                    user.wait();
+                }
             }
         });
 
@@ -294,8 +309,13 @@ module.exports = {
             startGameWithAI(user);
 
             if (user.opponent) {
-                user.opponent.wait();
-                user.turn();
+                if (user.game.turn === user.playerNo) {
+                    user.opponent.wait();
+                    user.turn();
+                } else {
+                    user.opponent.turn();
+                    user.wait();
+                }
             }
         });
 
