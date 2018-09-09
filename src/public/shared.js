@@ -9,6 +9,17 @@ const PLAYER_2 = 1;
 const NUM_PLAYERS = 2;
 
 /**
+ * Get only unique values.
+ * @param {object} value
+ * @param {number} index
+ * @param {Array} self
+ * @return {boolean}
+ */
+function onlyUnique(value, index, self) {
+    return self.indexOf(value) === index;
+}
+
+/**
  * The rect game board.
  */
 class RectGameBoard {
@@ -131,7 +142,7 @@ class RectGameBoard {
     /**
      * Return array of valid moves.
      * @param player
-     * @return {Set}
+     * @return {Array}
      */
     getValidMoves(player) {
         let claimable = [];
@@ -151,7 +162,7 @@ class RectGameBoard {
                 }
             }
         }
-        return claimable;
+        return claimable.filter(onlyUnique);
     }
 
     /**
