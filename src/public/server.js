@@ -6,6 +6,11 @@
  */
 const users = new Set();
 
+/**
+ * Randomize starting positions.
+ * @param u1
+ * @param u2
+ */
 function startGame(u1, u2) {
     const coinFlip = (Math.floor(Math.random() * 2) == 0);
     if (coinFlip) {
@@ -32,10 +37,17 @@ function findOpponent(user) {
  * Start game with BasicAI.
  * @param user
  */
-function startGameWithAI(user) {
+function startGameWithBasicAI(user) {
     startGame(user, new BasicAI());
 }
 
+/**
+ * Start game with BetterAI.
+ * @param user
+ */
+function startGameWithBetterAI(user) {
+    startGame(user, new BetterAI());
+}
 
 /**
  * Remove user session
@@ -62,8 +74,8 @@ class Game {
 		this.user2.playerNo = PLAYER_2;
 
 		this.turn = Math.floor(Math.random() * 2);
-		//this.gameboard = new HexGameBoard(5);
-        this.gameboard = new RectGameBoard(6, 8, false);
+        this.gameboard = new RectGameBoard(8, 6, false);
+        this.gameboard.createBoard();
 	}
 
 	/**
@@ -237,10 +249,13 @@ class BasicAI extends User {
             const moves = user.game.gameboard.getValidMoves(user.playerNo);
             if (moves.length > 0) {
                 let bestMove = undefined;
-                let bestScore = -1;
+                let bestScore = -Number.MAX_SAFE_INTEGER;
 
                 moves.forEach((m, index) => {
-                    const score = user.game.gameboard.score(m.r, m.c, user.playerNo);
+                    const clonedBoard = user.game.gameboard.copy();
+                    clonedBoard.doMove(m.r, m.c, user.playerNo);
+
+                    const score = minimax(clonedBoard, 0, true, user.playerNo);
                     if (score > bestScore) {
                         bestScore = score;
                         bestMove = index;
@@ -284,6 +299,159 @@ class BasicAI extends User {
 }
 
 /**
+ * Basic AI player.
+ */
+class BetterAI extends User {
+
+    constructor() {
+        super(null);
+        this.playerNo = null;
+        this.game = null;
+        this.opponent = null;
+        this.passed = false;
+    }
+
+    /**
+     * Start new game
+     * @param {Game} game
+     * @param {User} opponent
+     */
+    start(game, opponent) {
+        this.game = game;
+        this.opponent = opponent;
+    }
+
+    /**
+     * Terminate game
+     */
+    end() {
+        this.game = null;
+        this.opponent = null;
+    }
+
+    /**
+     * Emit wait event.
+     */
+    wait() {
+
+    }
+
+    /**
+     * Emit turn event.
+     */
+    turn() {
+        const user = this;
+        if (user.game.ended()) {
+            user.game.score();
+            return;
+        }
+        setTimeout(function () {
+            const moves = user.game.gameboard.getValidMoves(user.playerNo);
+            if (moves.length > 0) {
+                let bestMove = undefined;
+                let bestScore = -Number.MAX_SAFE_INTEGER;
+
+                moves.forEach((m, index) => {
+                    const clonedBoard = user.game.gameboard.copy();
+                    clonedBoard.doMove(m.r, m.c, user.playerNo);
+
+                    const score = minimax(clonedBoard, 2, true, user.playerNo);
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMove = index;
+                    }
+                });
+                user.game.gameboard.doMove(moves[bestMove].r, moves[bestMove].c, user.playerNo);
+
+                user.passed = false;
+            } else {
+                user.passed = true;
+            }
+            user.opponent.turn();
+            user.wait();
+            user.game.doTurn();
+
+            if (user.game.ended()) {
+                user.game.score();
+            }
+        }, 1000);
+    }
+
+    /**
+     * Trigger win event
+     */
+    win() {
+
+    }
+
+    /**
+     * Trigger lose event
+     */
+    lose() {
+
+    }
+
+    /**
+     * Trigger draw event
+     */
+    draw() {
+
+    }
+}
+
+/**
+ * Minimax algorithm for AI.
+ * @param {RectGameBoard} gameboard
+ * @param {number} depth
+ * @param {boolean} maximizingPlayer
+ * @param {number} playerNo
+ */
+function minimax(gameboard, depth, maximizingPlayer, playerNo) {
+    if (depth === 0 || gameboard.isBoardFilled()) {
+        const score = gameboard.getScores();
+        return score[playerNo] - score[(playerNo + 1) % NUM_PLAYERS];
+    }
+
+    if (maximizingPlayer) {
+        const moves = gameboard.getValidMoves(playerNo);
+        // console.log("Max", depth, playerNo);
+
+        if (moves.length > 0) {
+            let value = -Number.MAX_SAFE_INTEGER;
+
+            moves.forEach(m => {
+                const clonedBoard = gameboard.copy();
+                clonedBoard.doMove(m.r, m.c, playerNo);
+
+                value = Math.max(value, minimax(clonedBoard, depth - 1, false, playerNo));
+            });
+            return value;
+        } else {
+            return minimax(gameboard, depth - 1, false, playerNo)
+        }
+    } else {
+        const opponent = (playerNo + 1) % NUM_PLAYERS;
+        const moves = gameboard.getValidMoves(opponent);
+        // console.log("Min", depth, opponent);
+
+        if (moves.length > 0) {
+            let value = Number.MAX_SAFE_INTEGER;
+
+            moves.forEach(m => {
+                const clonedBoard = gameboard.copy();
+                clonedBoard.doMove(m.r, m.c, opponent);
+
+                value = Math.min(value, minimax(clonedBoard, depth - 1, true, playerNo));
+            });
+            return value;
+        } else {
+            return minimax(gameboard, depth - 1, true, playerNo)
+        }
+    }
+}
+
+
+/**
  * Socket.IO on connect event
  * @param {Socket} socket
  */
@@ -313,7 +481,24 @@ module.exports = {
             console.log("Start basic AI: " + socket.id);
 
             removeUser(user);
-            startGameWithAI(user);
+            startGameWithBasicAI(user);
+
+            if (user.opponent) {
+                if (user.game.turn === user.playerNo) {
+                    user.opponent.wait();
+                    user.turn();
+                } else {
+                    user.opponent.turn();
+                    user.wait();
+                }
+            }
+        });
+
+        socket.on("start-better-ai", () => {
+            console.log("Start Better AI: " + socket.id);
+
+            removeUser(user);
+            startGameWithBetterAI(user);
 
             if (user.opponent) {
                 if (user.game.turn === user.playerNo) {

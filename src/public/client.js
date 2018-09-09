@@ -19,6 +19,7 @@ window.requestAnimFrame = (function (callback) {
         game, //Game wrapper
         findHuman, //Find human button
         basicAI, //Basic AI button
+        betterAI, //Better AI button
         status, //Status element
         message, //Message element
         score, //Score element
@@ -175,6 +176,11 @@ window.requestAnimFrame = (function (callback) {
         basicAI.addEventListener("click", function (e) {
             socket.emit("start-basic-ai");
         }, false);
+
+        betterAI.addEventListener("click", function (e) {
+            socket.emit("start-better-ai");
+        }, false);
+
     }
 
     /**
@@ -186,6 +192,7 @@ window.requestAnimFrame = (function (callback) {
         game = document.getElementById("game-wrapper");
         findHuman = document.getElementById("find-human");
         basicAI = document.getElementById("start-basic-ai");
+        betterAI = document.getElementById("start-better-ai");
         status = document.getElementById("status");
         message = document.getElementById("message");
         score = document.getElementById("score");
