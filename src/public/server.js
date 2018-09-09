@@ -83,6 +83,13 @@ class Game {
             (this.user1.passed && this.user2.passed)
 	}
 
+    /**
+     * Increment turn.
+     */
+	doTurn() {
+        this.turn = (this.turn + 1) % NUM_PLAYERS;
+    }
+
 	/**
 	 * Final score
 	 */
@@ -246,7 +253,7 @@ class BasicAI extends User {
             }
             user.opponent.turn();
             user.wait();
-            user.game.turn = (user.game.turn + 1) % NUM_PLAYERS;
+            user.game.doTurn();
 
             if (user.game.ended()) {
                 user.game.score();
@@ -335,7 +342,7 @@ module.exports = {
                     user.passed = false;
                     user.wait();
                     user.opponent.turn();
-                    user.game.turn = (user.game.turn + 1) % NUM_PLAYERS;
+                    user.game.doTurn()
                 }
 
                 if (user.game.ended()) {
@@ -351,7 +358,7 @@ module.exports = {
                 user.passed = true;
                 user.wait();
                 user.opponent.turn();
-                user.game.turn = (user.game.turn + 1) % NUM_PLAYERS;
+                user.game.doTurn();
 
                 if (user.game.ended()) {
                     user.game.score();
