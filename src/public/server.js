@@ -255,7 +255,7 @@ class BasicAI extends User {
                     const clonedBoard = user.game.gameboard.copy();
                     clonedBoard.doMove(m.r, m.c, user.playerNo);
 
-                    const score = minimax(clonedBoard, 0, true, user.playerNo);
+                    const score = minimax(clonedBoard, 0, false, user.playerNo);
                     if (score > bestScore) {
                         bestScore = score;
                         bestMove = index;
@@ -355,7 +355,7 @@ class BetterAI extends User {
                     const clonedBoard = user.game.gameboard.copy();
                     clonedBoard.doMove(m.r, m.c, user.playerNo);
 
-                    const score = minimax(clonedBoard, 2, true, user.playerNo);
+                    const score = minimax(clonedBoard, 2, false, user.playerNo);
                     if (score > bestScore) {
                         bestScore = score;
                         bestMove = index;
