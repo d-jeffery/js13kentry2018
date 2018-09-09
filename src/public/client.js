@@ -840,13 +840,15 @@ window.requestAnimFrame = (function (callback) {
             ctx.stroke();
             ctx.restore();
 
-            if (this.tile.score > 1) {
-                ctx.fillStyle = "#FFFF00";
-                ctx.font = "bold 20px Arial";
-                ctx.globalAlpha = 1 - (Math.sin(this.alphaAccum) / 2);
+            ctx.fillStyle = "#FFFF00";
+            ctx.font = "bold 20px Arial";
+            ctx.globalAlpha = 1 - (Math.sin(this.alphaAccum) / 2);
+            if (this.tile.bonus && this.tile.owner === undefined) {
+                ctx.fillText("X2", this.pos.x - 10, this.pos.y + 5);
+            } else if (this.tile.score > 1) {
                 ctx.fillText("+" + this.tile.score, this.pos.x - 10, this.pos.y + 5);
-                ctx.globalAlpha = 1;
             }
+            ctx.globalAlpha = 1;
 
             if (moves.filter(t => t.r === this.tile.r &&
                 t.c === this.tile.c).length > 0) {

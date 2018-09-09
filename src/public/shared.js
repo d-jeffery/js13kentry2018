@@ -52,11 +52,14 @@ class RectGameBoard {
         this.tiles[halfR + 1][halfC].owner = PLAYER_2;
         this.tiles[halfR + 1][halfC + 1].owner = PLAYER_1;
 
-        this.tiles[1][1].score = 5;
+        //this.tiles[1][1].score = 5;
         this.tiles[1][this.c - 2].score = 5;
 
         this.tiles[this.r - 2][1].score = 5;
-        this.tiles[this.r - 2][this.c - 2].score = 5
+        //this.tiles[this.r - 2][this.c - 2].score = 5;
+
+        this.tiles[0][0].bonus = true;
+        this.tiles[this.r - 1][this.c - 1].bonus = true;
     }
 
     /**
@@ -81,6 +84,7 @@ class RectGameBoard {
      */
     claim(row, col, player) {
         const tile = this.tiles[row][col];
+        const bonus = tile.bonus;
         for(let i = 0; i < 6; i++) {
             let stack = [];
             let nextTile = tile;
@@ -104,10 +108,14 @@ class RectGameBoard {
                     break;
                 }
             } while (true);
-            stack.forEach(t => t.setOwner(player))
+            stack.forEach(t => {
+                t.setOwner(player);
+                if (bonus) t.score += 1;
+            })
         }
 
         tile.setOwner(player);
+        if (bonus) tile.score += 1;
     }
 
     /**
@@ -118,6 +126,7 @@ class RectGameBoard {
      */
     score(row, col, player) {
         const tile = this.tiles[row][col];
+        const bonus = tile.bonus;
         let score = 0;
         for(let i = 0; i < 6; i++) {
             let stack = [];
@@ -142,10 +151,10 @@ class RectGameBoard {
                     break;
                 }
             } while (true);
-            stack.forEach(t => score += t.score)
+            stack.forEach(t => score += t.score + (bonus ? 1 : 0))
         }
 
-        score += tile.score;
+        score += tile.score + (bonus ? 1 : 0);
         return score;
     }
 
@@ -231,6 +240,7 @@ class BoardTile {
         this.r = row;
         this.c = col;
         this.owner = undefined;
+        this.bonus = false;
         this.score = 1;
     }
 
