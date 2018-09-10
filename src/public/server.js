@@ -363,7 +363,7 @@ class BetterAI extends User {
 
                     const score = alphabeta(
                         clonedBoard,
-                        2,
+                        3,
                         -Number.MAX_SAFE_INTEGER,
                         Number.MAX_SAFE_INTEGER,
                         false,
