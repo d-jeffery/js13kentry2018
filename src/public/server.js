@@ -245,29 +245,17 @@ class BasicAI extends User {
             user.game.score();
             return;
         }
+        const [_, move] = alphabeta(
+            user.game.gameboard.copy(),
+            1,
+            -Number.MAX_SAFE_INTEGER,
+            Number.MAX_SAFE_INTEGER,
+            true,
+            user.playerNo);
+
         setTimeout(function () {
-            const moves = user.game.gameboard.getValidMoves(user.playerNo);
-            if (moves.length > 0) {
-                let bestMove = undefined;
-                let bestScore = -Number.MAX_SAFE_INTEGER;
-
-                moves.forEach((m, index) => {
-                    const clonedBoard = user.game.gameboard.copy();
-                    clonedBoard.doMove(m.r, m.c, user.playerNo);
-
-                    const score = alphabeta(
-                        clonedBoard,
-                        0,
-                        -Number.MAX_SAFE_INTEGER,
-                        Number.MAX_SAFE_INTEGER,
-                        false,
-                        user.playerNo);
-                    if (score > bestScore) {
-                        bestScore = score;
-                        bestMove = index;
-                    }
-                });
-                user.game.gameboard.doMove(moves[bestMove].r, moves[bestMove].c, user.playerNo);
+            if (move !== undefined) {
+                user.game.gameboard.doMove(move.r, move.c, user.playerNo);
                 user.passed = false;
             } else {
                 user.passed = true;
@@ -351,30 +339,17 @@ class BetterAI extends User {
             user.game.score();
             return;
         }
+        const [_, move] = alphabeta(
+            user.game.gameboard.copy(),
+            3,
+            -Number.MAX_SAFE_INTEGER,
+            Number.MAX_SAFE_INTEGER,
+            true,
+            user.playerNo);
+
         setTimeout(function () {
-            const moves = user.game.gameboard.getValidMoves(user.playerNo);
-            if (moves.length > 0) {
-                let bestMove = undefined;
-                let bestScore = -Number.MAX_SAFE_INTEGER;
-
-                moves.forEach((m, index) => {
-                    const clonedBoard = user.game.gameboard.copy();
-                    clonedBoard.doMove(m.r, m.c, user.playerNo);
-
-                    const score = alphabeta(
-                        clonedBoard,
-                        2,
-                        -Number.MAX_SAFE_INTEGER,
-                        Number.MAX_SAFE_INTEGER,
-                        false,
-                        user.playerNo);
-                    if (score > bestScore) {
-                        bestScore = score;
-                        bestMove = index;
-                    }
-                });
-                user.game.gameboard.doMove(moves[bestMove].r, moves[bestMove].c, user.playerNo);
-
+            if (move !== undefined) {
+                user.game.gameboard.doMove(move.r, move.c, user.playerNo);
                 user.passed = false;
             } else {
                 user.passed = true;
@@ -419,11 +394,12 @@ class BetterAI extends User {
  * @param {number} b
  * @param {boolean} maximizingPlayer
  * @param {number} playerNo
+ * @return {[score, move]}
  */
 function alphabeta(gameboard, depth, a, b, maximizingPlayer, playerNo) {
     if (depth === 0 || gameboard.isBoardFilled()) {
         const score = gameboard.getScores();
-        return score[playerNo] - score[(playerNo + 1) % NUM_PLAYERS];
+        return [score[playerNo] - score[(playerNo + 1) % NUM_PLAYERS], undefined];
     }
 
     let alpha = a;
@@ -435,19 +411,24 @@ function alphabeta(gameboard, depth, a, b, maximizingPlayer, playerNo) {
 
         if (moves.length > 0) {
             let value = -Number.MAX_SAFE_INTEGER;
+            let bestMove = undefined;
 
             for(const m of moves) {
                 const clonedBoard = gameboard.copy();
                 clonedBoard.doMove(m.r, m.c, playerNo);
 
-                value = Math.max(value,
-                    alphabeta(clonedBoard, depth - 1, alpha, beta, false, playerNo));
+                const [tempVal, _] = alphabeta(clonedBoard, depth - 1, alpha, beta, false, playerNo);
+                if (tempVal > value) {
+                    value = tempVal;
+                    bestMove = m;
+                }
+
                 alpha = Math.max(alpha, value);
                 if (alpha >= beta) break;
             }
-            return value;
+            return [value, bestMove];
         } else {
-            return alphabeta(gameboard, depth - 1, alpha, beta, false, playerNo)
+            return [alphabeta(gameboard, depth - 1, alpha, beta, false, playerNo), undefined];
         }
     } else {
         const opponent = (playerNo + 1) % NUM_PLAYERS;
@@ -456,19 +437,24 @@ function alphabeta(gameboard, depth, a, b, maximizingPlayer, playerNo) {
 
         if (moves.length > 0) {
             let value = Number.MAX_SAFE_INTEGER;
+            let bestMove = undefined;
 
             for(const m of moves) {
                 const clonedBoard = gameboard.copy();
                 clonedBoard.doMove(m.r, m.c, opponent);
 
-                value = Math.min(value,
-                    alphabeta(clonedBoard, depth - 1, alpha, beta, true, playerNo));
+                const [tempVal, _] = alphabeta(clonedBoard, depth - 1, alpha, beta, true, playerNo);
+                if (tempVal < value) {
+                    value = tempVal;
+                    bestMove = m;
+                }
+
                 beta = Math.min(beta, value);
                 if (alpha >= beta) break;
             }
-            return value;
+            return [value, bestMove];
         } else {
-            return alphabeta(gameboard, depth - 1, alpha, beta, true, playerNo)
+            return [alphabeta(gameboard, depth - 1, alpha, beta, true, playerNo), undefined]
         }
     }
 }
