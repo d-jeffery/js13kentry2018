@@ -419,12 +419,12 @@ function minimax(gameboard, depth, maximizingPlayer, playerNo) {
         if (moves.length > 0) {
             let value = -Number.MAX_SAFE_INTEGER;
 
-            moves.forEach(m => {
+            for(const m of moves) {
                 const clonedBoard = gameboard.copy();
                 clonedBoard.doMove(m.r, m.c, playerNo);
 
                 value = Math.max(value, minimax(clonedBoard, depth - 1, false, playerNo));
-            });
+            }
             return value;
         } else {
             return minimax(gameboard, depth - 1, false, playerNo)
@@ -437,12 +437,12 @@ function minimax(gameboard, depth, maximizingPlayer, playerNo) {
         if (moves.length > 0) {
             let value = Number.MAX_SAFE_INTEGER;
 
-            moves.forEach(m => {
+            for(const m of moves) {
                 const clonedBoard = gameboard.copy();
                 clonedBoard.doMove(m.r, m.c, opponent);
 
                 value = Math.min(value, minimax(clonedBoard, depth - 1, true, playerNo));
-            });
+            }
             return value;
         } else {
             return minimax(gameboard, depth - 1, true, playerNo)
