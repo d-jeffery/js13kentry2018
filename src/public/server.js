@@ -255,7 +255,13 @@ class BasicAI extends User {
                     const clonedBoard = user.game.gameboard.copy();
                     clonedBoard.doMove(m.r, m.c, user.playerNo);
 
-                    const score = minimax(clonedBoard, 0, false, user.playerNo);
+                    const score = alphabeta(
+                        clonedBoard,
+                        0,
+                        -Number.MAX_SAFE_INTEGER,
+                        Number.MAX_SAFE_INTEGER,
+                        false,
+                        user.playerNo);
                     if (score > bestScore) {
                         bestScore = score;
                         bestMove = index;
@@ -355,7 +361,13 @@ class BetterAI extends User {
                     const clonedBoard = user.game.gameboard.copy();
                     clonedBoard.doMove(m.r, m.c, user.playerNo);
 
-                    const score = minimax(clonedBoard, 2, false, user.playerNo);
+                    const score = alphabeta(
+                        clonedBoard,
+                        2,
+                        -Number.MAX_SAFE_INTEGER,
+                        Number.MAX_SAFE_INTEGER,
+                        false,
+                        user.playerNo);
                     if (score > bestScore) {
                         bestScore = score;
                         bestMove = index;
@@ -403,9 +415,71 @@ class BetterAI extends User {
  * Minimax algorithm for AI.
  * @param {RectGameBoard} gameboard
  * @param {number} depth
+ * @param {number} a
+ * @param {number} b
  * @param {boolean} maximizingPlayer
  * @param {number} playerNo
  */
+function alphabeta(gameboard, depth, a, b, maximizingPlayer, playerNo) {
+    if (depth === 0 || gameboard.isBoardFilled()) {
+        const score = gameboard.getScores();
+        return score[playerNo] - score[(playerNo + 1) % NUM_PLAYERS];
+    }
+
+    let alpha = a;
+    let beta = b;
+
+    if (maximizingPlayer) {
+        const moves = gameboard.getValidMoves(playerNo);
+        // console.log("Max", depth, playerNo);
+
+        if (moves.length > 0) {
+            let value = -Number.MAX_SAFE_INTEGER;
+
+            for(const m of moves) {
+                const clonedBoard = gameboard.copy();
+                clonedBoard.doMove(m.r, m.c, playerNo);
+
+                value = Math.max(value,
+                    alphabeta(clonedBoard, depth - 1, alpha, beta, false, playerNo));
+                alpha = Math.max(alpha, value);
+                if (alpha >= beta) break;
+            }
+            return value;
+        } else {
+            return alphabeta(gameboard, depth - 1, alpha, beta, false, playerNo)
+        }
+    } else {
+        const opponent = (playerNo + 1) % NUM_PLAYERS;
+        const moves = gameboard.getValidMoves(opponent);
+        // console.log("Min", depth, opponent);
+
+        if (moves.length > 0) {
+            let value = Number.MAX_SAFE_INTEGER;
+
+            for(const m of moves) {
+                const clonedBoard = gameboard.copy();
+                clonedBoard.doMove(m.r, m.c, opponent);
+
+                value = Math.min(value,
+                    alphabeta(clonedBoard, depth - 1, alpha, beta, true, playerNo));
+                beta = Math.min(beta, value);
+                if (alpha >= beta) break;
+            }
+            return value;
+        } else {
+            return alphabeta(gameboard, depth - 1, alpha, beta, true, playerNo)
+        }
+    }
+}
+
+/**
+ * Minimax algorithm for AI.
+ * @param {RectGameBoard} gameboard
+ * @param {number} depth
+ * @param {boolean} maximizingPlayer
+ * @param {number} playerNo
+ *//*
 function minimax(gameboard, depth, maximizingPlayer, playerNo) {
     if (depth === 0 || gameboard.isBoardFilled()) {
         const score = gameboard.getScores();
@@ -448,7 +522,7 @@ function minimax(gameboard, depth, maximizingPlayer, playerNo) {
             return minimax(gameboard, depth - 1, true, playerNo)
         }
     }
-}
+}*/
 
 
 /**
