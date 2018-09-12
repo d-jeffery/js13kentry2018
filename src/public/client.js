@@ -26,7 +26,8 @@ window.requestAnimFrame = (function (callback) {
         points = [0, 0],
         canvas, // The game canvas
         playerNo,
-        engine;
+        engine,
+        audio;
 
     var gameboard, // The game board
         moves;
@@ -89,6 +90,78 @@ window.requestAnimFrame = (function (callback) {
     }
 
     /**
+     * Play winning sound.
+     */
+    function playWinSound() {
+        const audio = new AudioContext();
+        const notes = [14, 12, 9, 10, 9];
+        const g = audio.createGain();
+        for(const i in notes) {
+            const osc = audio.createOscillator();
+
+            if(notes[i]) {
+                osc.connect(g);
+                g.connect(audio.destination);
+                osc.start(i * 0.1);
+                osc.frequency.setValueAtTime(440 * 1.06 ** (13 - notes[i]), i * 0.1);
+
+                osc.type = 'square';
+                g.gain.setValueAtTime(1, i * 0.1);
+                g.gain.setTargetAtTime(.0001, i * 0.1 + 0.08, 0.005);
+                osc.stop(i * 0.1 + 0.09)
+            }
+        }
+    }
+
+    /**
+     * Play lose sound.
+     */
+    function playLoseSound() {
+        const audio = new AudioContext();
+        const notes = [16, undefined, 19, undefined, 22];
+        const g = audio.createGain();
+        for(const i in notes) {
+            const osc = audio.createOscillator();
+
+            if(notes[i]) {
+                osc.connect(g);
+                g.connect(audio.destination);
+                osc.start(i * 0.1);
+                osc.frequency.setValueAtTime(440 * 1.06 ** (13 - notes[i]), i * 0.1);
+
+                osc.type = 'square';
+                g.gain.setValueAtTime(1, i * 0.1);
+                g.gain.setTargetAtTime(.0001, i * 0.1 + 0.08, 0.005);
+                osc.stop(i * 0.1 + 0.09)
+            }
+        }
+    }
+
+    /**
+     * Play draw sound.
+     */
+    function playDrawSound() {
+        const audio = new AudioContext();
+        const notes = [14, undefined, 12, undefined, 14];
+        const g = audio.createGain();
+        for(const i in notes) {
+            const osc = audio.createOscillator();
+
+            if(notes[i]) {
+                osc.connect(g);
+                g.connect(audio.destination);
+                osc.start(i * 0.1);
+                osc.frequency.setValueAtTime(440 * 1.06 ** (13 - notes[i]), i * 0.1);
+
+                osc.type = 'square';
+                g.gain.setValueAtTime(1, i * 0.1);
+                g.gain.setTargetAtTime(.0001, i * 0.1 + 0.08, 0.005);
+                osc.stop(i * 0.1 + 0.09)
+            }
+        }
+    }
+
+    /**
      * Binde Socket.IO and button events
      */
     function bind() {
@@ -132,16 +205,19 @@ window.requestAnimFrame = (function (callback) {
         socket.on("win", () => {
             setMessage("You win!", "zoom blue");
             displayScore();
+            playWinSound();
         });
 
         socket.on("lose", () => {
             setMessage("You lose!", "red");
             displayScore();
+            playLoseSound();
         });
 
         socket.on("draw", () => {
             setMessage("Draw!");
             displayScore();
+            playDrawSound();
         });
 
         socket.on("end", () => {
