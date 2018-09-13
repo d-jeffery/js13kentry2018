@@ -104,8 +104,7 @@ window.requestAnimFrame = (function (callback) {
                 g.connect(audio.destination);
                 osc.start(i * 0.1);
                 osc.frequency.setValueAtTime(440 * 1.06 ** (13 - notes[i]), i * 0.1);
-
-                osc.type = 'square';
+                g.gain.value = 0.25;
                 g.gain.setValueAtTime(1, i * 0.1);
                 g.gain.setTargetAtTime(.0001, i * 0.1 + 0.08, 0.005);
                 osc.stop(i * 0.1 + 0.09)
@@ -128,8 +127,7 @@ window.requestAnimFrame = (function (callback) {
                 g.connect(audio.destination);
                 osc.start(i * 0.1);
                 osc.frequency.setValueAtTime(440 * 1.06 ** (13 - notes[i]), i * 0.1);
-
-                osc.type = 'square';
+                g.gain.value = 0.25;
                 g.gain.setValueAtTime(1, i * 0.1);
                 g.gain.setTargetAtTime(.0001, i * 0.1 + 0.08, 0.005);
                 osc.stop(i * 0.1 + 0.09)
@@ -152,8 +150,7 @@ window.requestAnimFrame = (function (callback) {
                 g.connect(audio.destination);
                 osc.start(i * 0.1);
                 osc.frequency.setValueAtTime(440 * 1.06 ** (13 - notes[i]), i * 0.1);
-
-                osc.type = 'square';
+                g.gain.value = 0.25;
                 g.gain.setValueAtTime(1, i * 0.1);
                 g.gain.setTargetAtTime(.0001, i * 0.1 + 0.08, 0.005);
                 osc.stop(i * 0.1 + 0.09)
