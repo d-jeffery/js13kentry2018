@@ -18,6 +18,10 @@ function startGame(u1, u2) {
     } else {
         new Game(u2, u1).start();
     }
+
+    storage.get('games', 0).then(games => {
+        storage.set('games', games + 1);
+    });
 }
 
 /**
